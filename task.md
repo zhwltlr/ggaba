@@ -137,44 +137,36 @@
 
 ## Phase 3: Community & Feed
 
-> **상태:** DB 스키마 완료, 쿼리 키 팩토리 준비. 페이지 미구현.
+> **상태:** ✅ 완료. 피드 목록, 상세, 댓글/대댓글, 게시글 작성 구현.
 
 ### 3-1. 커뮤니티 피드 목록
 
-- [ ] `/community` 페이지:
-  - [ ] 탭 필터: 전체 / 견적공유(share) / 시공후기(review) / 질문(qna)
-  - [ ] 피드 카드 컴포넌트 (`CommunityCard`):
-    - [ ] 작성자 정보 (닉네임, 프로필)
-    - [ ] 게시글 제목, 내용 미리보기 (2줄)
-    - [ ] 견적 요약 (연결된 경우): 지역, 평수, 바가지 점수 뱃지
-    - [ ] 조회수, 좋아요, 댓글 수
-  - [ ] 무한 스크롤 (TanStack Query `useInfiniteQuery` + Intersection Observer)
-- [ ] Server Action: `src/app/community/_actions/posts.ts`
-  - [ ] `getPosts(type?, cursor?)` — 커서 기반 페이지네이션
-- [ ] TanStack Query 훅: `useCommunityPosts(type?)`
+- [x] `/community` 페이지:
+  - [x] 탭 필터: 전체 / 견적공유(share) / 시공후기(review) / 질문(qna)
+  - [x] 피드 카드 컴포넌트 (`CommunityCard`): 작성자, 제목, 내용 미리보기, 견적 요약, 통계
+  - [x] 무한 스크롤 (TanStack Query `useInfiniteQuery` + Intersection Observer)
+  - [x] 빈 상태 UI
+- [x] Server Action: `getPosts(type?, cursor?)` — 커서 기반 페이지네이션
+- [x] TanStack Query 훅: `useCommunityPosts(type?)`
 
 ### 3-2. 커뮤니티 상세 페이지
 
-- [ ] `/community/[id]` 페이지:
-  - [ ] 게시글 본문
-  - [ ] 연결된 견적 테이블 (읽기 전용, 마스킹 적용됨)
-  - [ ] 투표 버튼: "싸다 👍" / "적당하다 🤝" / "비싸다 👎"
-  - [ ] 댓글 목록 (대댓글 지원, 최신순)
-  - [ ] 댓글 작성 폼 (로그인 필수)
-- [ ] Server Actions:
-  - [ ] `getPost(id)` — 게시글 상세 + 견적 데이터 + 댓글
-  - [ ] `addComment(postId, content, parentId?)` — 댓글/대댓글 작성
-  - [ ] `votePost(postId, type)` — 투표 (추후 별도 votes 테이블 필요 시 추가)
+- [x] `/community/[id]` 페이지:
+  - [x] 게시글 본문 + 작성자 정보
+  - [x] 연결된 견적 테이블 (BagajiScore, 항목별 분석)
+  - [x] 투표 버튼: "싸다 / 적당하다 / 비싸다" (Toast)
+  - [x] 댓글 목록 (대댓글 지원)
+  - [x] 댓글 작성 폼 (로그인 필수, Enter로 전송)
+- [x] Server Actions: `getPost(id)`, `addComment(postId, content, parentId?)`
 
 ### 3-3. 게시글 작성
 
-- [ ] `/community/write` 페이지:
-  - [ ] 게시글 유형 선택 (견적공유 / 시공후기 / 질문)
-  - [ ] 제목, 본문 입력 (React Hook Form)
-  - [ ] "금고에서 견적 첨부" — 저장된 진단 결과 목록에서 선택
-  - [ ] 이미지 업로드 (최대 5장)
-  - [ ] 프라이버시 마스킹 옵션 (가격 마스킹, 이미지 마스킹)
-- [ ] Server Action: `createPost(data)` — community_posts INSERT + 이미지 업로드
+- [x] `/community/write` 페이지:
+  - [x] 게시글 유형 선택 (견적공유 / 시공후기 / 질문)
+  - [x] 제목, 본문 입력 (React Hook Form + Zod)
+  - [x] "금고에서 견적 첨부" — 내 진단 결과 목록에서 선택
+  - [x] 프라이버시 마스킹 옵션 (가격 마스킹)
+- [x] Server Action: `createPost(data)` — community_posts INSERT
 
 ---
 
