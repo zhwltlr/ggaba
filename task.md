@@ -29,26 +29,27 @@
 
 ## Phase 1: Authentication & Layout
 
-> **상태:** 레이아웃 완료. 인증 미구현.
+> **상태:** ✅ 완료. Supabase Auth 연동, 소셜 로그인, 보호 라우트, 유저 자동 생성 구현.
 
 ### 1-1. Supabase Auth 설정
 
-- [ ] `@supabase/supabase-js` 및 `@supabase/ssr` 설치 (`apps/web`)
-- [ ] Supabase 클라이언트 유틸리티 생성:
-  - [ ] `src/lib/supabase/client.ts` — 브라우저용 클라이언트 (`createBrowserClient`)
-  - [ ] `src/lib/supabase/server.ts` — Server Component/Action용 클라이언트 (`createServerClient` with cookies)
-  - [ ] `src/lib/supabase/middleware.ts` — 세션 갱신 미들웨어
-- [ ] `middleware.ts` (root) — Supabase 세션 갱신 + 보호 라우트 리다이렉트 (`/diagnosis`, `/vault`, `/mypage`는 로그인 필수)
-- [ ] 소셜 로그인 구현:
-  - [ ] Kakao OAuth 설정 (Supabase Dashboard → Auth → Providers)
-  - [ ] Naver OAuth 설정
-  - [ ] Google OAuth 설정
-- [ ] `/login` 페이지 — 소셜 로그인 버튼 3개 (Kakao/Naver/Google), 로고, 서비스 소개 문구
-- [ ] `/auth/callback` 라우트 — OAuth 콜백 처리 (`code` → session exchange)
-- [ ] Auth 상태 기반 UI 분기:
-  - [ ] 로그인 전: BottomNav에서 진단/금고/마이 탭 클릭 시 `/login`으로 리다이렉트
-  - [ ] 로그인 후: 정상 네비게이션
-- [ ] 신규 유저 가입 시 `users` 테이블에 자동 row 생성 (Supabase trigger 또는 Auth callback에서 처리)
+- [x] `@supabase/supabase-js` 및 `@supabase/ssr` 설치 (`apps/web`)
+- [x] Supabase 클라이언트 유틸리티 생성:
+  - [x] `src/lib/supabase/client.ts` — 브라우저용 클라이언트 (`createBrowserClient`)
+  - [x] `src/lib/supabase/server.ts` — Server Component/Action용 클라이언트 (`createServerClient` with cookies)
+  - [x] `src/lib/supabase/middleware.ts` — 세션 갱신 + 보호 라우트 로직
+- [x] `middleware.ts` (root) — Supabase 세션 갱신 + 보호 라우트 리다이렉트 (`/diagnosis`, `/vault`, `/mypage`는 로그인 필수)
+- [x] 소셜 로그인 구현 (코드 완료, Dashboard 설정은 별도):
+  - [ ] ⏳ Kakao OAuth 설정 (Supabase Dashboard → Auth → Providers)
+  - [ ] ⏳ Naver OAuth 설정 (GitHub로 대체 가능)
+  - [ ] ⏳ Google OAuth 설정
+- [x] `/login` 페이지 — 소셜 로그인 버튼 3개 (Kakao/GitHub/Google), 로고, 서비스 소개 문구
+- [x] `/auth/callback` 라우트 — OAuth 콜백 처리 (`code` → session exchange)
+- [x] Auth 상태 기반 UI 분기:
+  - [x] 로그인 전: middleware에서 보호 라우트 접근 시 `/login?redirect=`로 리다이렉트
+  - [x] 로그인 후: 정상 네비게이션, `/login` 접근 시 홈으로 리다이렉트
+- [x] 신규 유저 가입 시 `users` 테이블에 자동 row 생성 (`/auth/callback`에서 upsert)
+- [x] `useAuth` 훅 — 클라이언트 auth 상태 추적, signOut 기능
 
 ### 1-2. 레이아웃 (완료)
 
