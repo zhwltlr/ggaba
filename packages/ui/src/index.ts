@@ -34,6 +34,19 @@ export {
   type BottomNavProps,
 } from "./components/bottom-nav";
 
+// Input
+export {
+  FileUpload,
+  type FileUploadProps,
+} from "./components/file-upload";
+export {
+  MultiStepForm,
+  StepNavigation,
+  type StepConfig,
+  type MultiStepFormProps,
+  type StepNavigationProps,
+} from "./components/multi-step-form";
+
 // Data Display
 export {
   Table,
