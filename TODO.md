@@ -15,6 +15,5 @@
 
 - [ ] Kakao OAuth (Supabase Dashboard → Auth → Providers)
 - [ ] Google OAuth (Supabase Dashboard → Auth → Providers)
-- [ ] GitHub OAuth (Supabase Dashboard → Auth → Providers)
 - [ ] Vercel 환경 변수 설정 (Dashboard)
 - [ ] Production 배포

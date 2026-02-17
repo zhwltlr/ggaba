@@ -41,7 +41,6 @@
 - [x] `middleware.ts` (root) — Supabase 세션 갱신 + 보호 라우트 리다이렉트 (`/diagnosis`, `/vault`, `/mypage`는 로그인 필수)
 - [x] 소셜 로그인 구현 (코드 완료, Dashboard 설정은 별도):
   - [ ] ⏳ Kakao OAuth 설정 (Supabase Dashboard → Auth → Providers)
-  - [ ] ⏳ Naver OAuth 설정 (GitHub로 대체 가능)
   - [ ] ⏳ Google OAuth 설정
 - [x] `/login` 페이지 — 소셜 로그인 버튼 3개 (Kakao/GitHub/Google), 로고, 서비스 소개 문구
 - [x] `/auth/callback` 라우트 — OAuth 콜백 처리 (`code` → session exchange)
