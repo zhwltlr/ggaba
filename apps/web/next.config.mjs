@@ -1,6 +1,6 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
-  transpilePackages: ["@ggaba/ui", "@ggaba/lib"],
+  transpilePackages: ["@ggaba/ui", "@ggaba/lib", "@ggaba/db"],
 };
 
 export default nextConfig;

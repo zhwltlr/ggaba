@@ -9,6 +9,7 @@
     "lint": "next lint"
   },
   "dependencies": {
+    "@ggaba/db": "workspace:*",
     "@ggaba/lib": "workspace:*",
     "@ggaba/ui": "workspace:*",
     "@tanstack/react-query": "^5.28.0",
