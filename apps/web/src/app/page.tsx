@@ -1,3 +1,4 @@
+import Link from "next/link";
 import {
   Button,
   Card,
@@ -23,9 +24,11 @@ export default function Home() {
         <p className="text-sm text-muted-foreground">
           견적서를 올리면 AI가 적정 가격을 분석해드립니다
         </p>
-        <Button size="lg" className="mt-2">
-          <ClipboardCheck className="mr-2 h-5 w-5" />
-          무료 견적 진단받기
+        <Button size="lg" className="mt-2" asChild>
+          <Link href="/diagnosis">
+            <ClipboardCheck className="mr-2 h-5 w-5" />
+            무료 견적 진단받기
+          </Link>
         </Button>
       </section>
 

@@ -7,7 +7,9 @@
   "exports": {
     ".": "./src/index.ts",
     "./schemas": "./src/schemas/index.ts",
-    "./utils": "./src/utils/index.ts"
+    "./schemas/*": "./src/schemas/*.ts",
+    "./utils": "./src/utils/index.ts",
+    "./utils/*": "./src/utils/*.ts"
   },
   "scripts": {
     "lint": "eslint . --ext .ts,.tsx"
