@@ -27,6 +27,13 @@ export {
 export { Toaster } from "./components/toaster";
 export { useToast, toast } from "./components/use-toast";
 
+// Navigation
+export {
+  BottomNav,
+  type BottomNavItem,
+  type BottomNavProps,
+} from "./components/bottom-nav";
+
 // Data Display
 export {
   Table,
