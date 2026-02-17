@@ -1,14 +1,37 @@
 "use client";
 
+import dynamic from "next/dynamic";
 import { useCallback, useMemo } from "react";
-import { MultiStepForm, StepNavigation } from "@ggaba/ui";
+import { MultiStepForm, StepNavigation, Skeleton } from "@ggaba/ui";
 import { useToast } from "@ggaba/ui";
 import { useDiagnosisStore, DIAGNOSIS_STEPS } from "@/stores/use-diagnosis-store";
-import { StepUpload } from "./_steps/step-upload";
-import { StepMasking } from "./_steps/step-masking";
-import { StepInfo } from "./_steps/step-info";
-import { StepVerify } from "./_steps/step-verify";
-import { StepResult } from "./_steps/step-result";
+
+// Dynamic imports for code splitting — each step is loaded only when needed
+const StepUpload = dynamic(() => import("./_steps/step-upload").then((m) => ({ default: m.StepUpload })), {
+  loading: () => <StepSkeleton />,
+});
+const StepMasking = dynamic(() => import("./_steps/step-masking").then((m) => ({ default: m.StepMasking })), {
+  loading: () => <StepSkeleton />,
+});
+const StepInfo = dynamic(() => import("./_steps/step-info").then((m) => ({ default: m.StepInfo })), {
+  loading: () => <StepSkeleton />,
+});
+const StepVerify = dynamic(() => import("./_steps/step-verify").then((m) => ({ default: m.StepVerify })), {
+  loading: () => <StepSkeleton />,
+});
+const StepResult = dynamic(() => import("./_steps/step-result").then((m) => ({ default: m.StepResult })), {
+  loading: () => <StepSkeleton />,
+});
+
+function StepSkeleton() {
+  return (
+    <div className="flex flex-col gap-4">
+      <Skeleton className="h-8 w-48" />
+      <Skeleton className="h-40 w-full rounded-lg" />
+      <Skeleton className="h-20 w-full rounded-lg" />
+    </div>
+  );
+}
 
 const STEP_CONFIGS = [
   { title: "업로드", description: "견적서 사진을 업로드해주세요" },
@@ -26,13 +49,13 @@ export default function DiagnosisFlowPage() {
   // 스텝별 유효성 검사
   const canProceed = useMemo(() => {
     switch (currentStep) {
-      case 0: // 업로드 — 이미지 최소 1장
+      case 0:
         return uploadedImages.length > 0;
-      case 1: // 마스킹 — 항상 가능 (선택 사항)
+      case 1:
         return true;
-      case 2: // 추가 정보 — 필수 필드 체크
+      case 2:
         return !!(userInput.region && userInput.buildingType && userInput.sizePyeong);
-      case 3: // 항목 확인 — 항목 최소 1개
+      case 3:
         return extractedData.length > 0;
       default:
         return true;
@@ -64,7 +87,6 @@ export default function DiagnosisFlowPage() {
     4: <StepResult />,
   };
 
-  // 결과 스텝에서는 네비게이션 숨김
   const isResultStep = currentStep === DIAGNOSIS_STEPS.length - 1;
 
   return (

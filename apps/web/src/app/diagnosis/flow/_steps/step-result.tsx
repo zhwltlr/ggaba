@@ -17,12 +17,13 @@ import {
   TableCell,
 } from "@ggaba/ui";
 import { useToast } from "@ggaba/ui";
-import { AlertTriangle, Share2, FolderOpen, RotateCcw } from "lucide-react";
+import { AlertTriangle, AlertCircle, Info, Share2, FolderOpen, RotateCcw } from "lucide-react";
 import { cn } from "@ggaba/lib/utils";
 import { formatCurrency } from "@ggaba/lib/utils/format";
 import { useDiagnosisStore } from "@/stores/use-diagnosis-store";
 import { submitDiagnosis } from "@/app/diagnosis/_actions/submit";
 import { getPriceRating, calculateBadPriceScore } from "@/lib/mock-ocr";
+import { generateAlerts, type AlertItem } from "@/lib/alert-rules";
 
 const RATING_STYLES: Record<string, string> = {
   적정: "text-safe",
@@ -58,20 +59,8 @@ export function StepResult() {
     return { ...item, priceRating: rating, marketPriceLow: low, marketPriceHigh: high };
   });
 
-  // 경고 생성
-  const warnings: string[] = [];
-  analyzedItems.forEach((item) => {
-    if (item.priceRating === "과다" || item.priceRating === "주의") {
-      const diff = Math.round(
-        ((item.unitPrice - item.marketPriceHigh) / item.marketPriceHigh) * 100
-      );
-      if (diff > 0) {
-        warnings.push(
-          `${item.category} - ${item.detail}: 시세 대비 ${diff}% 높음`
-        );
-      }
-    }
-  });
+  // 규칙 기반 알림 생성
+  const alerts = generateAlerts(extractedData);
 
   const handleSubmit = useCallback(async () => {
     setIsSubmitting(true);
@@ -109,7 +98,17 @@ export function StepResult() {
 
   const score = result?.badPriceScore ?? badPriceScore;
   const total = result?.totalPrice ?? totalPrice;
-  const displayWarnings = result?.warnings ?? warnings;
+
+  const ALERT_ICON = {
+    danger: <AlertCircle className="h-4 w-4 text-danger" />,
+    warning: <AlertTriangle className="h-4 w-4 text-warning" />,
+    info: <Info className="h-4 w-4 text-primary" />,
+  };
+  const ALERT_BORDER = {
+    danger: "border-danger/50",
+    warning: "border-warning/50",
+    info: "border-primary/30",
+  };
 
   return (
     <div className="flex flex-col gap-4">
@@ -145,23 +144,20 @@ export function StepResult() {
         </CardContent>
       </Card>
 
-      {/* 경고 알림 */}
-      {displayWarnings.length > 0 && (
-        <Card className="border-warning/50">
-          <CardHeader className="pb-2">
-            <CardTitle className="flex items-center gap-2 text-sm text-warning">
-              <AlertTriangle className="h-4 w-4" />
-              주의 사항
-            </CardTitle>
-          </CardHeader>
-          <CardContent className="flex flex-col gap-1.5">
-            {displayWarnings.map((w, i) => (
-              <p key={i} className="text-xs text-muted-foreground">
-                • {w}
-              </p>
-            ))}
-          </CardContent>
-        </Card>
+      {/* 규칙 기반 알림 */}
+      {alerts.length > 0 && (
+        <div className="flex flex-col gap-2">
+          {alerts.map((alert, i) => (
+            <Card key={i} className={ALERT_BORDER[alert.type]}>
+              <CardContent className="flex items-start gap-2.5 p-3">
+                <div className="mt-0.5 shrink-0">{ALERT_ICON[alert.type]}</div>
+                <p className="text-xs leading-relaxed text-muted-foreground">
+                  {alert.message}
+                </p>
+              </CardContent>
+            </Card>
+          ))}
+        </div>
       )}
 
       {/* 항목별 분석 테이블 */}
@@ -236,9 +232,7 @@ export function StepResult() {
             </Button>
             <Button
               variant="outline"
-              onClick={() => {
-                toast({ title: "커뮤니티 공유 기능은 Phase 3에서 구현됩니다" });
-              }}
+              onClick={() => router.push("/community/write")}
               className="w-full"
             >
               <Share2 className="mr-2 h-4 w-4" />
