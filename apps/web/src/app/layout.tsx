@@ -1,13 +1,19 @@
-import type { Metadata } from "next";
-import { Inter } from "next/font/google";
+import type { Metadata, Viewport } from "next";
 import "./globals.css";
 import { Providers } from "./providers";
-
-const inter = Inter({ subsets: ["latin"] });
+import { MobileLayout } from "@/components/layout/mobile-layout";
 
 export const metadata: Metadata = {
   title: "GGABA - 인테리어 견적 플랫폼",
   description: "AI 기반 인테리어 견적 분석 플랫폼",
+};
+
+export const viewport: Viewport = {
+  width: "device-width",
+  initialScale: 1,
+  maximumScale: 1,
+  userScalable: false,
+  viewportFit: "cover",
 };
 
 export default function RootLayout({
@@ -17,8 +23,18 @@ export default function RootLayout({
 }) {
   return (
     <html lang="ko">
-      <body className={inter.className}>
-        <Providers>{children}</Providers>
+      <head>
+        <link
+          rel="stylesheet"
+          as="style"
+          crossOrigin="anonymous"
+          href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css"
+        />
+      </head>
+      <body>
+        <Providers>
+          <MobileLayout>{children}</MobileLayout>
+        </Providers>
       </body>
     </html>
   );
