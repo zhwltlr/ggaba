@@ -14,7 +14,9 @@
     "db:generate": "drizzle-kit generate",
     "db:migrate": "drizzle-kit migrate",
     "db:push": "drizzle-kit push",
-    "db:studio": "drizzle-kit studio"
+    "db:studio": "drizzle-kit studio",
+    "setup": "bash scripts/setup.sh",
+    "setup:storage": "npx tsx scripts/setup-storage.ts"
   },
   "dependencies": {
     "drizzle-orm": "^0.30.0",
@@ -23,6 +25,7 @@
   "devDependencies": {
     "@ggaba/config": "workspace:*",
     "drizzle-kit": "^0.21.0",
+    "tsx": "^4.7.0",
     "typescript": "^5.4.0"
   }
 }
