@@ -10,6 +10,7 @@ import {
 } from "drizzle-orm/pg-core";
 import { users } from "./users";
 import { estimates } from "./estimates";
+import { auctions } from "./auctions";
 
 /**
  * 커뮤니티 게시글 타입 Enum
@@ -72,7 +73,8 @@ export const comments = pgTable("comments", {
 });
 
 /**
- * Reviews 테이블 (시공 파트너 리뷰 - Phase 3 대비)
+ * Reviews 테이블 (시공사 리뷰)
+ * - v2.0: auctionId 추가 — 경매 기반 리뷰 연결
  */
 export const reviews = pgTable("reviews", {
   id: uuid("id").primaryKey().defaultRandom(),
@@ -85,9 +87,13 @@ export const reviews = pgTable("reviews", {
   estimateId: uuid("estimate_id").references(() => estimates.id, {
     onDelete: "set null",
   }),
+  auctionId: uuid("auction_id").references(() => auctions.id, {
+    onDelete: "set null",
+  }),
 
   rating: integer("rating").notNull(),
   content: text("content"),
+  imageUrls: text("image_urls"), // JSON array
 
   createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
 });
