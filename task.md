@@ -9,7 +9,7 @@
 
 ## Phase 0: Database & Schema Design (The Backbone)
 
-> **상태:** 스키마 정의 완료. Supabase 연결 및 마이그레이션 실행 필요.
+> **상태:** 스키마 및 마이그레이션 준비 완료. Supabase 프로젝트 생성 후 `pnpm --filter @ggaba/db setup` 실행하면 완료.
 
 - [x] Drizzle ORM 패키지 생성 (`packages/db`)
 - [x] `users` 테이블 정의 — UUID, email, nickname, role(user/admin/partner), tier(free/basic/premium), points
@@ -20,10 +20,10 @@
 - [x] `reviews` 테이블 정의 — userId(작성자), partnerId(시공사), rating, content (Phase 3 역경매 대비)
 - [x] Drizzle relations 정의 (모든 테이블 간 1:N, N:1 관계)
 - [x] DB 클라이언트 설정 (`client.ts` — globalThis 캐싱, postgres.js, max:1, prepare:false)
-- [ ] **Supabase 프로젝트 생성 및 `.env.local` 설정** (`DATABASE_URL`, `NEXT_PUBLIC_SUPABASE_URL`, `NEXT_PUBLIC_SUPABASE_ANON_KEY`)
-- [ ] **Drizzle 마이그레이션 생성:** `pnpm --filter @ggaba/db db:generate`
-- [ ] **Drizzle 마이그레이션 실행:** `pnpm --filter @ggaba/db db:push` (Supabase에 스키마 반영)
-- [ ] Supabase Storage 버킷 생성: `estimate-files` (견적서 원본), `profile-images` (프로필)
+- [x] **`.env.example` 설정 가이드 작성** (`DATABASE_URL`, `NEXT_PUBLIC_SUPABASE_URL`, `NEXT_PUBLIC_SUPABASE_ANON_KEY`, `SUPABASE_SERVICE_ROLE_KEY`)
+- [x] **Drizzle 마이그레이션 생성:** `pnpm --filter @ggaba/db db:generate` → `0000_glossy_celestials.sql` (6 테이블, 4 enum, 9 FK)
+- [x] **Supabase Setup 스크립트 작성** — `scripts/setup.sh` (db:push + storage 한번에), `scripts/setup-storage.ts` (버킷 생성)
+- [ ] ⏳ **Supabase 프로젝트 생성** → `.env.local` 설정 → `pnpm --filter @ggaba/db setup` 실행 (Supabase 프로젝트 필요)
 
 ---
 
