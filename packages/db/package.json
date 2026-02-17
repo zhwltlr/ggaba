@@ -16,7 +16,9 @@
     "db:push": "drizzle-kit push",
     "db:studio": "drizzle-kit studio",
     "setup": "bash scripts/setup.sh",
-    "setup:storage": "npx tsx scripts/setup-storage.ts"
+    "setup:storage": "npx tsx scripts/setup-storage.ts",
+    "migrate": "npx tsx scripts/migrate.ts",
+    "verify": "npx tsx scripts/verify.ts"
   },
   "dependencies": {
     "drizzle-orm": "^0.30.0",
