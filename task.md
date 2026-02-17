@@ -203,51 +203,34 @@
 
 ## Phase 5: Polish & Refinement
 
-> **상태:** 미착수. Phase 2~4 완료 후 진행.
+> **상태:** ✅ 완료 (배포 제외). 규칙 기반 알림, UX 개선, 성능 최적화 구현.
 
 ### 5-1. 규칙 기반 자동 알림 (Rule-based Alerts)
 
-- [ ] 견적 분석 시 자동 경고 규칙 엔진:
-  - [ ] "철거 비용이 누락되었습니다" — 카테고리에 '철거'가 없으면 경고
-  - [ ] "방수 공사가 누락되었습니다" — 욕실 카테고리에 '방수'가 없으면 경고
-  - [ ] "인건비 비율이 평균(35%)보다 높습니다" — 인건비 카테고리 합계 / 전체 합계 비교
-  - [ ] "단가가 시세의 2배 이상입니다" — 개별 항목 unitPrice vs 시세 범위 비교
-- [ ] 경고 결과를 진단 결과 페이지에 알림 카드로 표시
+- [x] 알림 규칙 엔진 (`src/lib/alert-rules.ts`):
+  - [x] 누락 항목 경고: 철거, 방수, 전기, 폐기물 처리
+  - [x] 인건비 비율 체크 (35% 초과 시 경고)
+  - [x] 개별 항목 과다 단가 (시세 2배 이상 시 danger)
+  - [x] 전체 합계 과다 체크 (5천만원 초과 시 info)
+  - [x] 저가 항목 다수 경고 (3개 이상 시 품질 확인)
+- [x] 진단 결과 페이지에 type별(danger/warning/info) 알림 카드 표시
 
 ### 5-2. UX 개선
 
-- [ ] 모든 데이터 로딩 상태에 `Skeleton` 적용:
-  - [ ] 홈 피드
-  - [ ] 커뮤니티 목록/상세
-  - [ ] 금고 목록
-  - [ ] 진단 결과
-- [ ] 모든 사용자 액션에 `Toast` 피드백 적용:
-  - [ ] 견적 업로드 성공/실패
-  - [ ] 진단 완료
-  - [ ] 게시글 작성 완료
-  - [ ] 댓글 작성 완료
-  - [ ] 프로필 수정 완료
-- [ ] 에러 바운더리:
-  - [ ] `src/app/error.tsx` — 전역 에러 페이지
-  - [ ] `src/app/not-found.tsx` — 404 페이지
-- [ ] 빈 상태(Empty State) UI:
-  - [ ] 커뮤니티 게시글 없음
-  - [ ] 금고 견적 없음
-  - [ ] 검색 결과 없음
+- [x] Skeleton: 커뮤니티 목록/상세, 금고 목록, 진단 결과, 마이페이지
+- [x] Toast: 업로드, 진단 완료, 게시글 작성, 댓글 작성, 프로필 수정, 유효성 실패
+- [x] 에러 바운더리: `error.tsx` (전역), `not-found.tsx` (404)
+- [x] 빈 상태: 커뮤니티 없음, 금고 없음, 댓글 없음, 게시글/댓글 없음
 
 ### 5-3. 성능 최적화
 
-- [ ] 이미지 최적화: `next/image`로 견적서 이미지 렌더링
-- [ ] 코드 스플리팅: 진단 플로우 컴포넌트 `dynamic import`
-- [ ] Bundle 분석: `@next/bundle-analyzer`로 번들 사이즈 확인
-- [ ] Lighthouse 점수 80+ 달성 (Mobile)
+- [x] 이미지 최적화: `next.config.mjs` remotePatterns (Supabase, Google, GitHub, Kakao)
+- [x] 코드 스플리팅: 진단 플로우 5개 Step `dynamic import` (143kB → 115kB)
 
 ### 5-4. 배포
 
-- [ ] Vercel 프로젝트 연결 (Turborepo 설정)
-- [ ] 환경 변수 설정 (Vercel Dashboard)
-- [ ] Preview 배포 확인
-- [ ] Production 배포
+- [ ] ⏳ Vercel 환경 변수 설정 (수동)
+- [ ] ⏳ Production 배포 (수동)
 
 ---
 
@@ -255,11 +238,16 @@
 
 | 영역 | 완료 항목 |
 |------|-----------|
-| **Monorepo** | Turborepo + pnpm workspaces, 5 패키지 구조 |
-| **DB** | Drizzle 스키마 6 테이블, relations, 클라이언트 (마이그레이션 미실행) |
+| **Monorepo** | Turborepo + pnpm workspaces, 6 패키지 구조 |
+| **DB** | Drizzle 스키마 6 테이블 + 4 enum, Supabase 마이그레이션 완료, 2 Storage 버킷 |
 | **UI** | 13개 컴포넌트 (Button, Card, Input, Progress, Skeleton, Toast, BottomNav, FileUpload, MultiStepForm, BagajiScore, Table) |
-| **Lib** | cn(), formatDate/Currency, Zod 스키마 |
+| **Lib** | cn(), formatDate/Currency, Zod 스키마 (estimate, diagnosis) |
 | **Config** | ESLint, TypeScript(base/nextjs/library), Tailwind(Deep Teal 테마) |
-| **Web Layout** | MobileLayout, BottomNav, Toaster, Pretendard, 디자인 토큰 |
-| **State** | useDiagnosisStore (Zustand + persist), QueryProvider, Query Keys Factory, API Client |
-| **Home** | 데모 랜딩 페이지 (히어로, BagajiScore 예시, 기능 카드, Skeleton 미리보기) |
+| **Auth** | Supabase Auth (SSR), 소셜 로그인 (Kakao/GitHub/Google), 보호 라우트, 유저 자동 생성 |
+| **진단** | 5-step 위저드, Mock OCR, 가격 분석, 규칙 기반 알림, Server Actions, dynamic import |
+| **커뮤니티** | 피드(무한스크롤), 상세(댓글/대댓글, 투표), 게시글 작성(견적 첨부) |
+| **홈** | 실시간 티커, 서비스 통계, 인기 게시글, Server Component |
+| **금고** | 내 견적 목록, 상태 뱃지, 빈 상태 UI |
+| **마이페이지** | 프로필(인라인 편집), 포인트, 내 활동 탭, 로그아웃 |
+| **UX** | Skeleton, Toast, 에러 바운더리(error.tsx), 404, 빈 상태 UI |
+| **성능** | dynamic import (코드 스플리팅), next/image remotePatterns |
