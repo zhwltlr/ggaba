@@ -33,6 +33,19 @@ export async function updateSession(request: NextRequest) {
     data: { user },
   } = await supabase.auth.getUser();
 
+  // Feature Flag: AI 진단 기능 비활성화 시 접근 차단
+  const aiDiagnosisEnabled = process.env.NEXT_PUBLIC_ENABLE_AI_DIAGNOSIS === "true";
+  const hiddenPaths = ["/diagnosis", "/vault"];
+  const isHiddenRoute = hiddenPaths.some((path) =>
+    request.nextUrl.pathname.startsWith(path)
+  );
+
+  if (!aiDiagnosisEnabled && isHiddenRoute) {
+    const url = request.nextUrl.clone();
+    url.pathname = "/";
+    return NextResponse.redirect(url);
+  }
+
   // 보호 라우트: 로그인 필수
   const protectedPaths = ["/diagnosis", "/vault", "/mypage"];
   const isProtected = protectedPaths.some((path) =>
