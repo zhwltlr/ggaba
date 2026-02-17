@@ -47,6 +47,12 @@ export {
   type StepNavigationProps,
 } from "./components/multi-step-form";
 
+// Domain-specific
+export {
+  BagajiScore,
+  type BagajiScoreProps,
+} from "./components/bagaji-score";
+
 // Data Display
 export {
   Table,
