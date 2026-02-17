@@ -14,7 +14,7 @@
 
 ## v2.0 진행
 
-- [ ] Phase 0: Refactoring & Migration — AI 기능 숨김, DB 스키마 확장
+- [x] Phase 0: Refactoring & Migration — AI 기능 숨김, DB 스키마 확장 (7 테이블 + 5 enum 추가)
 - [ ] Phase 1: Architecture & Dual Mode — 소비자/시공사 모드 전환, 동적 탭바
 - [ ] Phase 2: Consumer Auction Flow — 경매 요청, 상태, 입찰 비교
 - [ ] Phase 3: Contractor Bidding Flow — 경매 탐색, 단가 입찰, Blind 로직
