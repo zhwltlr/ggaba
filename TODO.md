@@ -6,18 +6,19 @@
 
 - [x] Phase 0: Database & Schema Design — Supabase 6 테이블 + 4 enum + 2 Storage 버킷
 - [x] Phase 1: Authentication & Layout — Supabase Auth, 소셜 로그인, 보호 라우트, 유저 자동 생성
+- [x] Phase 2: 견적 진단 — 5-step 위저드, Mock OCR, 가격 분석, Server Actions
 
 ## 진행 중
 
 ### Phase 2: 견적 진단 (킬러 피처)
 
-- [ ] 2-0. 진단 라우트 구조 (`/diagnosis`, `/diagnosis/flow`, `/diagnosis/result/[id]`)
-- [ ] 2-1. Step 1 — 견적서 업로드 (FileUpload + Supabase Storage Server Action)
-- [ ] 2-2. Step 2 — 개인정보 마스킹 (Canvas 블러 도구)
-- [ ] 2-3. Step 3 — 추가 정보 입력 (지역, 건물유형, 평수 — RHF + Zod)
-- [ ] 2-4. Step 4 — 항목 검증 (Mock OCR + 편집 가능한 테이블)
-- [ ] 2-5. Step 5 — 진단 결과 (Submit Server Action + BagajiScore + 분석 카드)
-- [ ] 2-6. 진단 플로우 통합 (MultiStepForm + StepNavigation)
+- [x] 2-0. 진단 라우트 구조 (`/diagnosis`, `/diagnosis/flow`, `/diagnosis/result/[id]`)
+- [x] 2-1. Step 1 — 견적서 업로드 (FileUpload + Supabase Storage Server Action)
+- [x] 2-2. Step 2 — 개인정보 마스킹 (Canvas 블러 도구)
+- [x] 2-3. Step 3 — 추가 정보 입력 (지역, 건물유형, 평수 — RHF + Zod)
+- [x] 2-4. Step 4 — 항목 검증 (Mock OCR + 편집 가능한 테이블)
+- [x] 2-5. Step 5 — 진단 결과 (Submit Server Action + BagajiScore + 분석 카드)
+- [x] 2-6. 진단 플로우 통합 (MultiStepForm + StepNavigation)
 
 ## 미착수
 

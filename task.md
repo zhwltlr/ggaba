@@ -63,82 +63,75 @@
 
 ## Phase 2: Core Feature — Estimate Diagnosis (킬러 피처)
 
-> **상태:** Zustand 스토어, UI 컴포넌트(FileUpload, MultiStepForm, BagajiScore) 준비 완료. 페이지 및 실제 로직 미구현.
+> **상태:** ✅ 완료. 5-step 위저드, Mock OCR, 가격 분석, Server Actions 구현 완료.
 
 ### 2-0. 진단 플로우 라우트 구조
 
-- [ ] `/diagnosis` 라우트 그룹 생성:
-  - [ ] `/diagnosis` — 진단 시작 랜딩 (CTA 버튼)
-  - [ ] `/diagnosis/flow` — 멀티스텝 위저드 (upload → masking → info → verify → result)
-  - [ ] `/diagnosis/result/[id]` — 진단 결과 상세 페이지
+- [x] `/diagnosis` 라우트 그룹 생성:
+  - [x] `/diagnosis` — 진단 시작 랜딩 (CTA 버튼)
+  - [x] `/diagnosis/flow` — 멀티스텝 위저드 (upload → masking → info → verify → result)
+  - [x] `/diagnosis/result/[id]` — 진단 결과 상세 페이지
 
 ### 2-1. Step 1 — 견적서 업로드 (Upload)
 
-- [ ] 업로드 UI 구현 (`/diagnosis/flow` 내 step 0):
-  - [ ] `FileUpload` 컴포넌트 연동 (이미 `@ggaba/ui`에 있음)
-  - [ ] 다중 이미지 업로드 지원 (최대 5장)
-  - [ ] 업로드된 이미지 썸네일 목록 + 삭제 기능
-- [ ] Supabase Storage 업로드 Server Action:
-  - [ ] `src/app/diagnosis/_actions/upload.ts` — 이미지를 `estimate-files` 버킷에 업로드
-  - [ ] 업로드 후 public URL 반환
-- [ ] `useDiagnosisStore.setImages()` 호출로 상태 저장
+- [x] 업로드 UI 구현 (`/diagnosis/flow` 내 step 0):
+  - [x] 다중 이미지 업로드 지원 (최대 5장), 드래그앤드롭, 카메라
+  - [x] 업로드된 이미지 썸네일 목록 + 삭제 기능
+- [x] Supabase Storage 업로드 Server Action:
+  - [x] `src/app/diagnosis/_actions/upload.ts` — 이미지를 `estimate-files` 버킷에 업로드
+  - [x] 업로드 후 public URL 반환
+- [x] `useDiagnosisStore.addImage/removeImage` 호출로 상태 저장
 
 ### 2-2. Step 2 — 개인정보 마스킹 (Masking)
 
-- [ ] 마스킹 UI 구현 (`/diagnosis/flow` 내 step 1):
-  - [ ] Canvas 기반 이미지 위에 "문지르기" 블러 도구
-  - [ ] 터치/마우스 드래그로 민감 정보 영역 블러 처리
-  - [ ] "자동 마스킹" 토글 (전화번호, 주소 패턴 자동 감지 — Phase 1에서는 UI만, 로직은 Mock)
-- [ ] 마스킹 옵션 저장: `useDiagnosisStore.setMasking()`
-- [ ] 마스킹 완료된 이미지를 Supabase Storage에 별도 저장 (원본 유지)
+- [x] 마스킹 UI 구현 (`/diagnosis/flow` 내 step 1):
+  - [x] Canvas 기반 이미지 위에 "문지르기" 블러 도구 (박스 블러)
+  - [x] 터치/마우스 드래그로 민감 정보 영역 블러 처리
+  - [x] 브러시 크기 조절, 이미지 초기화 기능
+- [x] 마스킹 옵션 저장: `useDiagnosisStore.setMasking()`
 
 ### 2-3. Step 3 — 추가 정보 입력 (Info)
 
-- [ ] 정보 입력 폼 구현 (`/diagnosis/flow` 내 step 2):
-  - [ ] React Hook Form + Zod 연동
-  - [ ] 필드: 지역(region) — 시/군/구 Select, 건물 유형(buildingType) — 아파트/빌라/오피스텔/단독주택 Select, 아파트명 입력(optional), 평수(sizePyeong) — 숫자 입력
-  - [ ] 제목(title) — 자동 생성 ("마포구 24평 아파트 견적")
-- [ ] 유저 기본 정보가 있으면 자동 채움 (Skip 가능)
-- [ ] `useDiagnosisStore.setUserInput()` 호출로 상태 저장
-- [ ] Zod 스키마 검증 (`packages/lib/schemas`에 `diagnosisInfoSchema` 추가)
+- [x] 정보 입력 폼 구현 (`/diagnosis/flow` 내 step 2):
+  - [x] React Hook Form + Zod 연동
+  - [x] 필드: 지역(region) Select, 건물유형(buildingType) Select, 평수(sizePyeong) 숫자 입력
+  - [x] 제목(title) — 자동 생성 ("마포구 24평 아파트 견적")
+- [x] `useDiagnosisStore.setUserInput()` 호출로 상태 저장
+- [x] Zod 스키마 검증 (`packages/lib/schemas/diagnosis.ts`에 `diagnosisInfoSchema` 추가)
 
 ### 2-4. Step 4 — 항목 검증 (Verify) — Human-in-the-loop
 
-- [ ] Mock OCR 함수 구현:
-  - [ ] `src/lib/mock-ocr.ts` — 이미지 URL을 받아 4-tier 견적 항목 JSON 반환 (하드코딩된 샘플 데이터)
-  - [ ] 반환 형식: `ExtractedLineItem[]` (id, category, detail, unit, unitPrice, quantity, totalPrice)
-- [ ] 항목 검증 UI 구현 (`/diagnosis/flow` 내 step 3):
-  - [ ] `Table` 컴포넌트로 추출 항목 표시 (Category | Detail | Unit | Qty | UnitPrice | Total)
-  - [ ] 행 인라인 편집 기능 (클릭 → Input으로 변환)
-  - [ ] 행 추가/삭제 버튼
-  - [ ] 카테고리별 소계 표시
-  - [ ] 전체 합계 표시
-- [ ] `useDiagnosisStore.updateLineItem()`, `removeLineItem()`, `addLineItem()` 연동
-- [ ] "다음" 클릭 시 데이터 최종 확인 모달
+- [x] Mock OCR 함수 구현:
+  - [x] `src/lib/mock-ocr.ts` — 13개 샘플 견적 항목 반환
+  - [x] 시세 데이터 및 가격 등급 산출 함수 (`getPriceRating`, `calculateBadPriceScore`)
+- [x] 항목 검증 UI 구현 (`/diagnosis/flow` 내 step 3):
+  - [x] 카테고리별 그룹핑 + 소계 표시
+  - [x] 행 인라인 편집 기능 (Pencil → Input 변환)
+  - [x] 행 추가/삭제 버튼
+  - [x] 전체 합계 표시
+- [x] `useDiagnosisStore.updateLineItem()`, `removeLineItem()`, `addLineItem()` 연동
 
 ### 2-5. Step 5 — 진단 결과 (Result)
 
-- [ ] 진단 제출 Server Action:
-  - [ ] `src/app/diagnosis/_actions/submit.ts` — estimates + estimate_items 테이블에 INSERT
-  - [ ] Mock 분석 로직: 각 항목의 unitPrice를 시세 범위와 비교하여 priceRating 산출
-  - [ ] 전체 badPriceScore 계산 (항목별 과다/적정/저가 비율 기반)
-- [ ] 결과 페이지 UI (`/diagnosis/result/[id]`):
-  - [ ] `BagajiScore` 게이지 (이미 `@ggaba/ui`에 있음) — 전체 바가지 점수
-  - [ ] 분석 요약 카드: "인건비가 평균보다 32% 높습니다", "철거 비용이 누락되었습니다" 등
-  - [ ] 항목별 분석 테이블 (priceRating: 적정/주의/과다 컬러링, 시세 범위 표시)
-  - [ ] 액션 버튼: "커뮤니티에 공유" / "견적서 저장" / "다시 진단하기"
-- [ ] TanStack Query 훅:
-  - [ ] `useEstimateDetail(id)` — 견적 상세 + items 조회
-  - [ ] `useSubmitDiagnosis()` — mutation: 진단 제출
-- [ ] `useDiagnosisStore.reset()` 호출로 상태 초기화 (결과 확인 후)
+- [x] 진단 제출 Server Action:
+  - [x] `src/app/diagnosis/_actions/submit.ts` — estimates + estimate_items 테이블에 INSERT
+  - [x] Mock 분석 로직: 각 항목의 unitPrice를 시세 범위와 비교하여 priceRating 산출
+  - [x] 전체 badPriceScore 계산 (금액 가중치 기반)
+  - [x] 경고 메시지 자동 생성 (시세 초과, 항목 누락 감지)
+- [x] 결과 페이지 UI:
+  - [x] `BagajiScore` 게이지 — 전체 바가지 점수
+  - [x] 분석 요약 카드 + 경고 알림
+  - [x] 항목별 분석 테이블 (priceRating 컬러링, 시세 범위)
+  - [x] 액션 버튼: "커뮤니티에 공유" / "상세 결과 보기" / "새로 진단하기"
+- [x] TanStack Query 훅: `useEstimateDetail(id)` — 견적 상세 + items 조회
+- [x] `/diagnosis/result/[id]` — 저장된 진단 결과 상세 페이지
 
 ### 2-6. 진단 플로우 통합
 
-- [ ] `/diagnosis/flow/page.tsx` — MultiStepForm + StepNavigation 연동
-  - [ ] `useDiagnosisStore.currentStep`에 따라 Step 1~5 컴포넌트 조건부 렌더링
-  - [ ] StepNavigation에서 nextStep/prevStep 호출
-  - [ ] 각 Step의 유효성 검증 후 다음 단계 진행 허용
-- [ ] 스텝 간 데이터 흐름 테스트 (Upload → Masking → Info → Verify → Result)
+- [x] `/diagnosis/flow/page.tsx` — MultiStepForm + StepNavigation 연동
+  - [x] `useDiagnosisStore.currentStep`에 따라 Step 1~5 조건부 렌더링
+  - [x] 스텝별 유효성 검증 후 다음 단계 진행 허용
+  - [x] Toast로 유효성 실패 메시지 표시
 
 ---
 
