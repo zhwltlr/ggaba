@@ -50,3 +50,14 @@ export const auctionKeys = {
   details: () => [...auctionKeys.all, "detail"] as const,
   detail: (id: string) => [...auctionKeys.details(), id] as const,
 };
+
+export const bidKeys = {
+  all: ["bids"] as const,
+  openLists: () => [...bidKeys.all, "open"] as const,
+  openList: (filters: Record<string, unknown>) =>
+    [...bidKeys.openLists(), filters] as const,
+  openDetail: (id: string) => [...bidKeys.all, "open-detail", id] as const,
+  myLists: () => [...bidKeys.all, "my"] as const,
+  myList: (filters: Record<string, unknown>) =>
+    [...bidKeys.myLists(), filters] as const,
+};
