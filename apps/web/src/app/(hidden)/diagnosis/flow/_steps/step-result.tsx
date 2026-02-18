@@ -21,7 +21,7 @@ import { AlertTriangle, AlertCircle, Info, Share2, FolderOpen, RotateCcw } from 
 import { cn } from "@ggaba/lib/utils";
 import { formatCurrency } from "@ggaba/lib/utils/format";
 import { useDiagnosisStore } from "@/stores/use-diagnosis-store";
-import { submitDiagnosis } from "@/app/diagnosis/_actions/submit";
+import { submitDiagnosis } from "@/app/(hidden)/diagnosis/_actions/submit";
 import { getPriceRating, calculateBadPriceScore } from "@/lib/mock-ocr";
 import { generateAlerts, type AlertItem } from "@/lib/alert-rules";
 
