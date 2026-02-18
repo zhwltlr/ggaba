@@ -8,9 +8,10 @@ import {
   CardContent,
   BagajiScore,
 } from "@ggaba/ui";
-import { ClipboardCheck, TrendingDown, Shield, ArrowRight } from "lucide-react";
+import { ClipboardCheck, TrendingDown, Shield, ArrowRight, Gavel, FileText } from "lucide-react";
 import { createClient } from "@/lib/supabase/server";
 import { RecentTicker } from "./_components/recent-ticker";
+import { getAuctionSummary } from "./_actions/home";
 
 const AI_DIAGNOSIS_ENABLED =
   process.env.NEXT_PUBLIC_ENABLE_AI_DIAGNOSIS === "true";
@@ -56,6 +57,11 @@ export default async function Home() {
         : 0;
   }
 
+  // 경매 현황 (AI 진단 OFF일 때)
+  const auctionSummary = !AI_DIAGNOSIS_ENABLED
+    ? await getAuctionSummary()
+    : null;
+
   // 인기 커뮤니티 게시글 3건 (항상 표시)
   const { data: popularPosts } = await supabase
     .from("community_posts")
@@ -92,6 +98,33 @@ export default async function Home() {
           </Button>
         )}
       </section>
+
+      {/* 경매 현황 위젯 (AI 진단 OFF일 때) */}
+      {!AI_DIAGNOSIS_ENABLED && auctionSummary && (
+        <div className="grid grid-cols-2 gap-3">
+          <Card>
+            <CardContent className="flex flex-col items-center gap-1 p-4">
+              <Gavel className="h-5 w-5 text-primary" />
+              <p className="text-2xl font-bold text-primary">
+                {auctionSummary.activeAuctions}
+              </p>
+              <p className="text-xs text-muted-foreground">활성 경매</p>
+            </CardContent>
+          </Card>
+          <Card>
+            <CardContent className="flex flex-col items-center gap-1 p-4">
+              <FileText className="h-5 w-5 text-primary" />
+              <p className="text-2xl font-bold text-primary">
+                {auctionSummary.totalBids}
+              </p>
+              <p className="text-xs text-muted-foreground">받은 입찰</p>
+            </CardContent>
+          </Card>
+        </div>
+      )}
+
+      {/* TODO: Phase 5 — 인기 시공사 미리보기 (시공사 데이터 생성 후) */}
+      {/* TODO: Phase 5 — 최근 리뷰 미리보기 (리뷰 데이터 생성 후) */}
 
       {/* 실시간 티커 (AI 진단 ON일 때만) */}
       {AI_DIAGNOSIS_ENABLED && recentEstimates && recentEstimates.length > 0 && (
