@@ -157,32 +157,33 @@
 
 ### 3-1. 입찰 가능 경매 목록 (Browser)
 
-- [ ] `/bids` 페이지 (시공사 모드):
-  - [ ] 열린 경매 목록 (status: 'open' | 'bidding')
-  - [ ] 필터: 지역 / 평수 범위 / 예산 범위
-  - [ ] 카드: 지역, 평수, 예산 범위, 마감까지 남은 시간
-  - [ ] 이미 입찰한 경매 표시 ("입찰 완료" 뱃지)
-- [ ] Server Action: `getOpenAuctions(filters?)` — 경매 목록 조회
+- [x] `/bids` 페이지 (시공사 모드):
+  - [x] 열린 경매 목록 (status: 'open' | 'bidding')
+  - [x] 필터: 지역 / 평수 범위
+  - [x] 카드: 지역, 평수, 예산 범위, 마감까지 남은 시간
+  - [x] 이미 입찰한 경매 표시 ("입찰 완료" 뱃지)
+  - [x] 무한 스크롤 페이지네이션
+- [x] Server Action: `getOpenAuctions(filters?)` — 경매 목록 조회
 
 ### 3-2. 입찰 제출 폼
 
-- [ ] `/bids/[auctionId]/submit` 페이지:
-  - [ ] 경매 요청 상세 정보 표시
-  - [ ] **단가(m²) 입력 강제:** 각 카테고리별 unit price 입력
-    - [ ] 4-tier 계층: category → detail → unit → unit_price
-    - [ ] 자동 합계 계산
-  - [ ] 시공사 코멘트 입력
-  - [ ] 포트폴리오 자동 첨부
-  - [ ] **Blind 로직:** 다른 시공사의 입찰 정보 조회 불가 (Server-side 검증)
-- [ ] Server Action: `submitBid(data)` — bids + bid_items INSERT
-- [ ] 중복 입찰 방지 (DB unique constraint)
+- [x] `/bids/[auctionId]/submit` 페이지:
+  - [x] 경매 요청 상세 정보 표시
+  - [x] **단가(m²) 입력 강제:** 각 카테고리별 unit price 입력
+    - [x] 4-tier 계층: category → detail → unit → unit_price
+    - [x] 자동 합계 계산
+  - [x] 시공사 코멘트 입력
+  - [ ] 포트폴리오 자동 첨부 *(Phase 5 연기)*
+  - [x] **Blind 로직:** 다른 시공사의 입찰 정보 조회 불가 (Server-side 검증)
+- [x] Server Action: `submitBid(data)` — bids + bid_items INSERT
+- [x] 중복 입찰 방지 (DB unique constraint)
 
 ### 3-3. 내 입찰 내역
 
-- [ ] `/bids/my` 페이지:
-  - [ ] 내가 제출한 입찰 목록
-  - [ ] 상태별 필터: submitted / selected / rejected
-  - [ ] 선택된 입찰 → 채팅방 이동 링크
+- [x] `/bids/my` 페이지:
+  - [x] 내가 제출한 입찰 목록
+  - [x] 상태별 필터: submitted / selected / rejected
+  - [ ] 선택된 입찰 → 채팅방 이동 링크 *(Phase 4 연기)*
 
 ---
 
