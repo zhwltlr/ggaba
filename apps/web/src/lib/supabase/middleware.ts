@@ -47,7 +47,15 @@ export async function updateSession(request: NextRequest) {
   }
 
   // 보호 라우트: 로그인 필수
-  const protectedPaths = ["/diagnosis", "/vault", "/mypage"];
+  const protectedPaths = [
+    "/diagnosis",
+    "/vault",
+    "/mypage",
+    "/auction/new",
+    "/bids",
+    "/portfolio/edit",
+    "/onboarding",
+  ];
   const isProtected = protectedPaths.some((path) =>
     request.nextUrl.pathname.startsWith(path)
   );
