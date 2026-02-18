@@ -23,11 +23,14 @@ import {
   ChevronRight,
   Check,
   X,
+  ArrowLeftRight,
 } from "lucide-react";
 import { useAuth } from "@/hooks/use-auth";
+import { useUserStore, type UserMode } from "@/stores/use-user-store";
 import {
   getProfile,
   updateProfile,
+  updateUserMode,
   getMyPosts,
   getMyComments,
 } from "./_actions/profile";
@@ -46,6 +49,8 @@ interface Profile {
   tier: string;
   points: number;
   profile_image_url: string | null;
+  user_mode: UserMode;
+  business_profile_id: string | null;
   created_at: string;
 }
 
@@ -53,6 +58,7 @@ export default function MyPage() {
   const router = useRouter();
   const { signOut } = useAuth();
   const { toast } = useToast();
+  const { userMode, setUserMode, setBusinessProfileId } = useUserStore();
 
   const [profile, setProfile] = useState<Profile | null>(null);
   const [loading, setLoading] = useState(true);
@@ -61,6 +67,7 @@ export default function MyPage() {
   const [myPosts, setMyPosts] = useState<Record<string, unknown>[]>([]);
   const [myComments, setMyComments] = useState<Record<string, unknown>[]>([]);
   const [activeTab, setActiveTab] = useState<"posts" | "comments">("posts");
+  const [switchingMode, setSwitchingMode] = useState(false);
 
   useEffect(() => {
     Promise.all([getProfile(), getMyPosts(), getMyComments()]).then(
@@ -72,6 +79,30 @@ export default function MyPage() {
       }
     );
   }, []);
+
+  const handleModeSwitch = useCallback(async () => {
+    if (!profile) return;
+    const targetMode: UserMode = userMode === "consumer" ? "contractor" : "consumer";
+
+    // 시공사 모드 전환 시 사업자 등록이 안 되어 있으면 온보딩으로 이동
+    if (targetMode === "contractor" && !profile.business_profile_id) {
+      router.push("/onboarding/contractor");
+      return;
+    }
+
+    setSwitchingMode(true);
+    const result = await updateUserMode(targetMode);
+    if (result.error) {
+      toast({ title: "모드 전환 실패", description: result.error, variant: "destructive" });
+      setSwitchingMode(false);
+      return;
+    }
+
+    setUserMode(targetMode);
+    setProfile((prev) => (prev ? { ...prev, user_mode: targetMode } : prev));
+    toast({ title: targetMode === "contractor" ? "시공사 모드로 전환했습니다" : "소비자 모드로 전환했습니다" });
+    setSwitchingMode(false);
+  }, [profile, userMode, setUserMode, router, toast]);
 
   const handleSaveNickname = useCallback(async () => {
     if (!newNickname.trim() || newNickname.trim().length > 50) return;
@@ -211,6 +242,29 @@ export default function MyPage() {
           <span className="text-lg font-bold text-primary">
             {profile.points.toLocaleString()}P
           </span>
+        </CardContent>
+      </Card>
+
+      {/* 모드 전환 */}
+      <Card>
+        <CardContent className="flex items-center justify-between p-4">
+          <div className="flex items-center gap-2">
+            <ArrowLeftRight className="h-5 w-5 text-primary" />
+            <div>
+              <span className="text-sm font-medium">모드 전환</span>
+              <p className="text-[10px] text-muted-foreground">
+                현재: {userMode === "consumer" ? "소비자" : "시공사"} 모드
+              </p>
+            </div>
+          </div>
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={handleModeSwitch}
+            disabled={switchingMode}
+          >
+            {userMode === "consumer" ? "시공사로 전환" : "소비자로 전환"}
+          </Button>
         </CardContent>
       </Card>
 

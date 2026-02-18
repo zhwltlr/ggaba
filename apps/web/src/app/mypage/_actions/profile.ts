@@ -55,6 +55,28 @@ export async function updateProfile(input: {
   return { error: null };
 }
 
+export async function updateUserMode(mode: "consumer" | "contractor") {
+  const supabase = await createClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+
+  if (!user) {
+    return { error: "로그인이 필요합니다." };
+  }
+
+  const { error } = await supabase
+    .from("users")
+    .update({ user_mode: mode })
+    .eq("id", user.id);
+
+  if (error) {
+    return { error: error.message };
+  }
+
+  return { error: null };
+}
+
 export async function getMyPosts() {
   const supabase = await createClient();
   const {
