@@ -67,6 +67,39 @@ export async function updateSession(request: NextRequest) {
     return NextResponse.redirect(url);
   }
 
+  // 모드별 접근 제어: 로그인된 사용자의 user_mode 기반
+  const contractorOnlyPaths = ["/bids", "/portfolio/edit"];
+  const consumerOnlyPaths = ["/auction/new"];
+  const pathname = request.nextUrl.pathname;
+
+  const isContractorOnly = contractorOnlyPaths.some((p) =>
+    pathname.startsWith(p)
+  );
+  const isConsumerOnly = consumerOnlyPaths.some((p) =>
+    pathname.startsWith(p)
+  );
+
+  if (user && (isContractorOnly || isConsumerOnly)) {
+    const { data: profile } = await supabase
+      .from("users")
+      .select("user_mode")
+      .eq("id", user.id)
+      .single();
+
+    const userMode = profile?.user_mode;
+
+    if (isContractorOnly && userMode !== "contractor") {
+      const url = request.nextUrl.clone();
+      url.pathname = "/";
+      return NextResponse.redirect(url);
+    }
+    if (isConsumerOnly && userMode !== "consumer") {
+      const url = request.nextUrl.clone();
+      url.pathname = "/";
+      return NextResponse.redirect(url);
+    }
+  }
+
   // 로그인 상태에서 /login 접근 시 홈으로
   if (request.nextUrl.pathname === "/login" && user) {
     const url = request.nextUrl.clone();
