@@ -9,34 +9,46 @@ import {
 } from "@ggaba/ui";
 import {
   Home,
-  ClipboardCheck,
+  Gavel,
+  ClipboardList,
   MessageSquare,
-  Lock,
+  Image,
   User,
 } from "lucide-react";
+import { useUserStore } from "@/stores/use-user-store";
+import { useUserProfile } from "@/hooks/use-user-profile";
 
-const HIDE_NAV_PATHS = ["/login", "/auth"];
+const HIDE_NAV_PATHS = ["/login", "/auth", "/onboarding"];
 
-const AI_DIAGNOSIS_ENABLED =
-  process.env.NEXT_PUBLIC_ENABLE_AI_DIAGNOSIS === "true";
-
-const ALL_TABS: (BottomNavItem & { hidden?: boolean })[] = [
+// ── 소비자 모드 탭 ──
+const CONSUMER_TABS: BottomNavItem[] = [
   { label: "홈", href: "/", icon: Home },
-  { label: "진단", href: "/diagnosis", icon: ClipboardCheck, hidden: !AI_DIAGNOSIS_ENABLED },
+  { label: "경매", href: "/auction", icon: Gavel },
   { label: "커뮤니티", href: "/community", icon: MessageSquare },
-  { label: "금고", href: "/vault", icon: Lock, hidden: !AI_DIAGNOSIS_ENABLED },
+  { label: "마이", href: "/mypage", icon: User },
+];
+
+// ── 시공사 모드 탭 ──
+const CONTRACTOR_TABS: BottomNavItem[] = [
+  { label: "입찰목록", href: "/bids", icon: ClipboardList },
+  { label: "포트폴리오", href: "/portfolio", icon: Image },
+  { label: "커뮤니티", href: "/community", icon: MessageSquare },
   { label: "마이", href: "/mypage", icon: User },
 ];
 
 export function MobileLayout({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
   const router = useRouter();
+  const userMode = useUserStore((s) => s.userMode);
+
+  // DB에서 유저 모드 동기화
+  useUserProfile();
 
   const hideNav = HIDE_NAV_PATHS.some((path) => pathname.startsWith(path));
 
   const navItems = useMemo(
-    () => ALL_TABS.filter((tab) => !tab.hidden),
-    [],
+    () => (userMode === "contractor" ? CONTRACTOR_TABS : CONSUMER_TABS),
+    [userMode],
   );
 
   return (
