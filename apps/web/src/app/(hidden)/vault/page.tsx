@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { redirect } from "next/navigation";
 import { useRouter } from "next/navigation";
 import {
   Button,
@@ -12,6 +13,9 @@ import { cn } from "@ggaba/lib/utils";
 import { formatCurrency } from "@ggaba/lib/utils/format";
 import { FolderOpen, ClipboardCheck, Calendar } from "lucide-react";
 import { getMyEstimates } from "./_actions/estimates";
+
+const AI_DIAGNOSIS_ENABLED =
+  process.env.NEXT_PUBLIC_ENABLE_AI_DIAGNOSIS === "true";
 
 const STATUS_LABELS: Record<string, { label: string; className: string }> = {
   pending: { label: "대기중", className: "bg-muted text-muted-foreground" },
@@ -33,6 +37,10 @@ interface EstimateItem {
 }
 
 export default function VaultPage() {
+  if (!AI_DIAGNOSIS_ENABLED) {
+    redirect("/");
+  }
+
   const router = useRouter();
   const [estimates, setEstimates] = useState<EstimateItem[]>([]);
   const [loading, setLoading] = useState(true);

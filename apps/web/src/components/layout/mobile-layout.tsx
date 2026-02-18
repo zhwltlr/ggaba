@@ -14,16 +14,23 @@ import {
   MessageSquare,
   Image,
   User,
+  ShieldCheck,
 } from "lucide-react";
 import { useUserStore } from "@/stores/use-user-store";
 import { useUserProfile } from "@/hooks/use-user-profile";
 
 const HIDE_NAV_PATHS = ["/login", "/auth", "/onboarding"];
 
+const AI_DIAGNOSIS_ENABLED =
+  process.env.NEXT_PUBLIC_ENABLE_AI_DIAGNOSIS === "true";
+
 // ── 소비자 모드 탭 ──
 const CONSUMER_TABS: BottomNavItem[] = [
   { label: "홈", href: "/", icon: Home },
   { label: "경매", href: "/auction", icon: Gavel },
+  ...(AI_DIAGNOSIS_ENABLED
+    ? [{ label: "진단", href: "/vault", icon: ShieldCheck } as BottomNavItem]
+    : []),
   { label: "커뮤니티", href: "/community", icon: MessageSquare },
   { label: "마이", href: "/mypage", icon: User },
 ];
