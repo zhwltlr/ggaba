@@ -16,7 +16,7 @@
 
 - [x] Phase 0: Refactoring & Migration — AI 기능 숨김, DB 스키마 확장 (7 테이블 + 5 enum 추가)
 - [x] Phase 1: Architecture & Dual Mode — 소비자/시공사 모드 전환, 동적 탭바
-- [ ] Phase 2: Consumer Auction Flow — 경매 요청, 상태, 입찰 비교
+- [x] Phase 2: Consumer Auction Flow — 경매 요청, 상태, 입찰 비교
 - [ ] Phase 3: Contractor Bidding Flow — 경매 탐색, 단가 입찰, Blind 로직
 - [ ] Phase 4: Match & Communication — 시공사 선택, 실시간 채팅
 - [ ] Phase 5: Community & Portfolio — 포트폴리오, 리뷰, 커뮤니티 확장
