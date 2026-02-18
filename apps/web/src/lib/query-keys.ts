@@ -41,3 +41,12 @@ export const communityKeys = {
   comments: (postId: string) =>
     [...communityKeys.all, "comments", postId] as const,
 };
+
+export const auctionKeys = {
+  all: ["auctions"] as const,
+  lists: () => [...auctionKeys.all, "list"] as const,
+  list: (filters: Record<string, unknown>) =>
+    [...auctionKeys.lists(), filters] as const,
+  details: () => [...auctionKeys.all, "detail"] as const,
+  detail: (id: string) => [...auctionKeys.details(), id] as const,
+};
