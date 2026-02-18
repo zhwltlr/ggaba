@@ -1,7 +1,8 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { useParams, useRouter } from "next/navigation";
+import Link from "next/link";
 import {
   Button,
   Card,
@@ -12,7 +13,15 @@ import {
 } from "@ggaba/ui";
 import { useToast } from "@ggaba/ui";
 import { cn } from "@ggaba/lib/utils";
-import { ArrowLeft, Calendar, MapPin, Ruler, Wallet } from "lucide-react";
+import {
+  ArrowLeft,
+  Calendar,
+  MapPin,
+  Ruler,
+  Wallet,
+  Clock,
+  BarChart3,
+} from "lucide-react";
 import { useAuctionDetail, useSelectBid } from "@/hooks/use-auction";
 import type { AuctionStatus, BidItem } from "@/app/auction/_types";
 
@@ -36,18 +45,57 @@ const BID_STATUS_BADGE: Record<
 
 const ALPHABET = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
 
+function useCountdown(deadline: string | null) {
+  const [remaining, setRemaining] = useState<{
+    days: number;
+    hours: number;
+    minutes: number;
+    seconds: number;
+    expired: boolean;
+  }>({ days: 0, hours: 0, minutes: 0, seconds: 0, expired: true });
+
+  useEffect(() => {
+    if (!deadline) return;
+
+    const calc = () => {
+      const diff = new Date(deadline).getTime() - Date.now();
+      if (diff <= 0) {
+        setRemaining({ days: 0, hours: 0, minutes: 0, seconds: 0, expired: true });
+        return;
+      }
+      setRemaining({
+        days: Math.floor(diff / (1000 * 60 * 60 * 24)),
+        hours: Math.floor((diff / (1000 * 60 * 60)) % 24),
+        minutes: Math.floor((diff / (1000 * 60)) % 60),
+        seconds: Math.floor((diff / 1000) % 60),
+        expired: false,
+      });
+    };
+
+    calc();
+    const interval = setInterval(calc, 1000);
+    return () => clearInterval(interval);
+  }, [deadline]);
+
+  return remaining;
+}
+
 export default function AuctionDetailPage() {
   const params = useParams();
   const router = useRouter();
   const { toast } = useToast();
   const id = params.id as string;
 
-  const { data, isLoading } = useAuctionDetail(id);
+  const { data, isLoading } = useAuctionDetail(id, { refetchInterval: 30_000 });
   const selectBidMutation = useSelectBid(id);
 
   const [confirmingBidId, setConfirmingBidId] = useState<string | null>(null);
 
   const auction = data?.auction;
+
+  const countdown = useCountdown(auction?.deadline_at ?? null);
+  const isBeforeDeadline = auction?.deadline_at && !countdown.expired;
+  const isActive = auction?.status === "open" || auction?.status === "bidding";
 
   const handleSelectBid = async (bidId: string) => {
     const result = await selectBidMutation.mutateAsync(bidId);
@@ -121,6 +169,38 @@ export default function AuctionDetailPage() {
         </span>
       </div>
 
+      {/* 입찰 진행 중 배너 + 카운트다운 */}
+      {isActive && isBeforeDeadline && (
+        <Card className="border-primary/30 bg-primary/5">
+          <CardContent className="flex items-center gap-3 p-3">
+            <Clock className="h-5 w-5 shrink-0 text-primary" />
+            <div className="flex-1">
+              <p className="text-xs font-medium text-primary">입찰 진행 중</p>
+              <p className="mt-0.5 text-sm font-bold tabular-nums">
+                {countdown.days > 0 && `${countdown.days}일 `}
+                {String(countdown.hours).padStart(2, "0")}:
+                {String(countdown.minutes).padStart(2, "0")}:
+                {String(countdown.seconds).padStart(2, "0")}
+                <span className="ml-1 text-xs font-normal text-muted-foreground">
+                  남음
+                </span>
+              </p>
+            </div>
+          </CardContent>
+        </Card>
+      )}
+
+      {isActive && countdown.expired && auction.deadline_at && (
+        <Card className="border-muted bg-muted/30">
+          <CardContent className="flex items-center gap-3 p-3">
+            <Clock className="h-5 w-5 shrink-0 text-muted-foreground" />
+            <p className="text-xs font-medium text-muted-foreground">
+              입찰 마감 시간이 지났습니다
+            </p>
+          </CardContent>
+        </Card>
+      )}
+
       {/* 경매 정보 */}
       <Card>
         <CardHeader className="pb-2">
@@ -183,9 +263,19 @@ export default function AuctionDetailPage() {
 
       {/* 입찰 비교 */}
       <div className="flex flex-col gap-3">
-        <h2 className="text-sm font-bold">
-          입찰 현황 ({auction.bids.length}건)
-        </h2>
+        <div className="flex items-center justify-between">
+          <h2 className="text-sm font-bold">
+            입찰 현황 ({auction.bids.length}건)
+          </h2>
+          {auction.bids.length >= 2 && (
+            <Button variant="outline" size="sm" asChild>
+              <Link href={`/auction/${id}/compare`}>
+                <BarChart3 className="mr-1 h-3.5 w-3.5" />
+                입찰 비교하기
+              </Link>
+            </Button>
+          )}
+        </div>
 
         {auction.bids.length === 0 ? (
           <Card>

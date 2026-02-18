@@ -23,11 +23,12 @@ export function useMyAuctions(status?: AuctionStatus) {
   });
 }
 
-export function useAuctionDetail(id: string) {
+export function useAuctionDetail(id: string, options?: { refetchInterval?: number }) {
   return useQuery({
     queryKey: auctionKeys.detail(id),
     queryFn: () => getAuctionDetail(id),
     enabled: !!id,
+    refetchInterval: options?.refetchInterval,
   });
 }
 
