@@ -36,6 +36,8 @@ const TYPE_LABEL: Record<string, string> = {
   share: "견적공유",
   review: "시공후기",
   qna: "질문",
+  contractor_tip: "시공팁",
+  material_info: "자재정보",
 };
 
 export default function CommunityDetailPage() {

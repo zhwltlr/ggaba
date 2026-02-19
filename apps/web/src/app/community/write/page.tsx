@@ -18,6 +18,7 @@ import { cn } from "@ggaba/lib/utils";
 import { ArrowLeft, Link2, X } from "lucide-react";
 import { createPost, type PostType } from "@/app/community/_actions/posts";
 import { createClient } from "@/lib/supabase/client";
+import { useUserStore } from "@/stores/use-user-store";
 
 const postSchema = z.object({
   title: z.string().min(1, "제목을 입력해주세요").max(200),
@@ -26,10 +27,15 @@ const postSchema = z.object({
 
 type PostForm = z.infer<typeof postSchema>;
 
-const POST_TYPES: { value: PostType; label: string; desc: string }[] = [
+const COMMON_TYPES: { value: PostType; label: string; desc: string }[] = [
   { value: "share", label: "견적공유", desc: "견적서를 공유하고 의견을 구해요" },
   { value: "review", label: "시공후기", desc: "시공 경험을 공유해요" },
   { value: "qna", label: "질문", desc: "인테리어 관련 질문을 올려요" },
+];
+
+const CONTRACTOR_TYPES: { value: PostType; label: string; desc: string }[] = [
+  { value: "contractor_tip", label: "시공팁", desc: "시공 노하우를 공유해요" },
+  { value: "material_info", label: "자재정보", desc: "자재 정보를 공유해요" },
 ];
 
 interface EstimateOption {
@@ -42,6 +48,12 @@ interface EstimateOption {
 export default function CommunityWritePage() {
   const router = useRouter();
   const { toast } = useToast();
+  const { userMode } = useUserStore();
+
+  const postTypes =
+    userMode === "contractor"
+      ? [...COMMON_TYPES, ...CONTRACTOR_TYPES]
+      : COMMON_TYPES;
 
   const [postType, setPostType] = useState<PostType>("share");
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -119,8 +131,8 @@ export default function CommunityWritePage() {
       </div>
 
       {/* 유형 선택 */}
-      <div className="flex gap-2">
-        {POST_TYPES.map((pt) => (
+      <div className="flex flex-wrap gap-2">
+        {postTypes.map((pt) => (
           <button
             key={pt.value}
             type="button"

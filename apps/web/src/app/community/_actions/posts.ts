@@ -208,6 +208,20 @@ export async function createPost(input: {
     return { error: "로그인이 필요합니다." };
   }
 
+  // 시공사 전용 카테고리 검증
+  const contractorOnlyTypes: PostType[] = ["contractor_tip", "material_info"];
+  if (contractorOnlyTypes.includes(input.type)) {
+    const { data: profile } = await supabase
+      .from("users")
+      .select("user_mode")
+      .eq("id", user.id)
+      .single();
+
+    if (profile?.user_mode !== "contractor") {
+      return { postId: null, error: "시공사만 작성할 수 있는 카테고리입니다." };
+    }
+  }
+
   const { data, error } = await supabase
     .from("community_posts")
     .insert({
