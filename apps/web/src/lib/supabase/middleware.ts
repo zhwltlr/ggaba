@@ -53,13 +53,17 @@ export async function updateSession(request: NextRequest) {
     "/mypage",
     "/auction/new",
     "/bids",
+    "/portfolio/write",
     "/portfolio/edit",
     "/onboarding",
     "/chat",
   ];
-  const isProtected = protectedPaths.some((path) =>
-    request.nextUrl.pathname.startsWith(path)
-  );
+  const protectedPatterns = [/^\/portfolio\/[^/]+\/edit$/];
+  const isProtected =
+    protectedPaths.some((path) =>
+      request.nextUrl.pathname.startsWith(path)
+    ) ||
+    protectedPatterns.some((re) => re.test(request.nextUrl.pathname));
 
   if (isProtected && !user) {
     const url = request.nextUrl.clone();
@@ -69,13 +73,14 @@ export async function updateSession(request: NextRequest) {
   }
 
   // 모드별 접근 제어: 로그인된 사용자의 user_mode 기반
-  const contractorOnlyPaths = ["/bids", "/portfolio/edit"];
+  const contractorOnlyPaths = ["/bids", "/portfolio/write", "/portfolio/edit"];
+  const contractorOnlyPatterns = [/^\/portfolio\/[^/]+\/edit$/];
   const consumerOnlyPaths = ["/auction/new"];
   const pathname = request.nextUrl.pathname;
 
-  const isContractorOnly = contractorOnlyPaths.some((p) =>
-    pathname.startsWith(p)
-  );
+  const isContractorOnly =
+    contractorOnlyPaths.some((p) => pathname.startsWith(p)) ||
+    contractorOnlyPatterns.some((re) => re.test(pathname));
   const isConsumerOnly = consumerOnlyPaths.some((p) =>
     pathname.startsWith(p)
   );
