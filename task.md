@@ -183,40 +183,44 @@
 - [x] `/bids/my` 페이지:
   - [x] 내가 제출한 입찰 목록
   - [x] 상태별 필터: submitted / selected / rejected
-  - [ ] 선택된 입찰 → 채팅방 이동 링크 *(Phase 4 연기)*
+  - [x] 선택된 입찰 → 채팅방 이동 링크
 
 ---
 
-## Phase 4: Match & Communication (매칭 & 소통)
+## Phase 4: Match & Communication (매칭 & 소통) ✅
 
 > **목표:** 소비자가 시공사를 선택하면 채팅방이 생성되고, 실시간 소통이 가능하다.
 
 ### 4-1. 시공사 선택 & 채팅방 생성
 
-- [ ] 소비자가 입찰 선택 시:
-  - [ ] 해당 bid status → `'selected'`, 나머지 → `'rejected'`
-  - [ ] auction status → `'selected'`
-  - [ ] `chat_rooms` 자동 생성 (consumer_id + contractor_id + auction_id)
-  - [ ] 소비자 주소/연락처 시공사에게 공개 처리
+- [x] 소비자가 입찰 선택 시:
+  - [x] 해당 bid status → `'selected'`, 나머지 → `'rejected'`
+  - [x] auction status → `'selected'`
+  - [x] `chat_rooms` 자동 생성 (consumer_id + contractor_id + auction_id)
+  - [ ] 소비자 주소/연락처 시공사에게 공개 처리 *(Phase 5 이후)*
 
 ### 4-2. 1:1 실시간 채팅
 
-- [ ] `/chat/[roomId]` 페이지:
-  - [ ] 메시지 목록 (실시간 — Supabase Realtime subscribe)
-  - [ ] 텍스트 메시지 전송
-  - [ ] 이미지/파일 공유 (Supabase Storage 업로드)
-  - [ ] 읽음 표시 (`read_at` 업데이트)
-- [ ] `/chat` 채팅 목록 페이지:
-  - [ ] 내 채팅방 목록
-  - [ ] 마지막 메시지 미리보기, 안 읽은 메시지 수
-- [ ] Server Actions: `sendMessage()`, `getMessages()`, `markAsRead()`
+- [x] `/chat/[roomId]` 페이지:
+  - [x] 메시지 목록 (실시간 — Supabase Realtime subscribe)
+  - [x] 텍스트 메시지 전송
+  - [ ] 이미지/파일 공유 *(Phase 4에서는 disabled UI만 표시, 추후 Supabase Storage 연동)*
+  - [x] 읽음 표시 (`read_at` 업데이트)
+- [x] `/chat` 채팅 목록 페이지:
+  - [x] 내 채팅방 목록
+  - [x] 마지막 메시지 미리보기, 안 읽은 메시지 수
+- [x] Server Actions: `sendMessage()`, `getMessages()`, `markAsRead()`
+- [x] RLS 정책 SQL 마이그레이션 (chat_rooms, messages)
+- [x] TanStack Query 훅 (useChatRooms, useMessages, useSendMessage 등)
+- [x] BottomNav 5탭 구성 (소비자/시공사 모두 채팅 탭 추가)
+- [x] 미들웨어 `/chat` 보호 라우트 추가
 
 ### 4-3. 계약 & 에스크로 (UI Only)
 
-- [ ] 채팅 내 "표준 계약서 작성" 버튼 (UI 껍데기)
-- [ ] "에스크로 결제" 상태 트래킹 UI:
-  - [ ] 계약 체결 → 착수금 입금 → 시공 중 → 시공 완료 → 잔금 정산
-  - [ ] 상태별 Progress 표시 (실제 결제 연동은 추후)
+- [x] 채팅 내 "표준 계약서 작성" 버튼 (UI 껍데기, disabled)
+- [x] "에스크로 결제" 상태 트래킹 UI:
+  - [x] 계약 체결 → 착수금 입금 → 시공 중 → 시공 완료 → 잔금 정산
+  - [x] 상태별 Progress 표시 (실제 결제 연동은 추후)
 
 ---
 
