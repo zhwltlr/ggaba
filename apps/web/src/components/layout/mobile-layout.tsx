@@ -12,6 +12,7 @@ import {
   Gavel,
   ClipboardList,
   MessageSquare,
+  MessagesSquare,
   Image,
   User,
   ShieldCheck,
@@ -31,6 +32,7 @@ const CONSUMER_TABS: BottomNavItem[] = [
   ...(AI_DIAGNOSIS_ENABLED
     ? [{ label: "진단", href: "/vault", icon: ShieldCheck } as BottomNavItem]
     : []),
+  { label: "채팅", href: "/chat", icon: MessagesSquare },
   { label: "커뮤니티", href: "/community", icon: MessageSquare },
   { label: "마이", href: "/mypage", icon: User },
 ];
@@ -39,6 +41,7 @@ const CONSUMER_TABS: BottomNavItem[] = [
 const CONTRACTOR_TABS: BottomNavItem[] = [
   { label: "입찰목록", href: "/bids", icon: ClipboardList },
   { label: "포트폴리오", href: "/portfolio", icon: Image },
+  { label: "채팅", href: "/chat", icon: MessagesSquare },
   { label: "커뮤니티", href: "/community", icon: MessageSquare },
   { label: "마이", href: "/mypage", icon: User },
 ];
