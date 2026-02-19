@@ -62,6 +62,17 @@ export const bidKeys = {
     [...bidKeys.myLists(), filters] as const,
 };
 
+export const portfolioKeys = {
+  all: ["portfolios"] as const,
+  myLists: () => [...portfolioKeys.all, "my"] as const,
+  myList: (filters: Record<string, unknown>) =>
+    [...portfolioKeys.myLists(), filters] as const,
+  details: () => [...portfolioKeys.all, "detail"] as const,
+  detail: (id: string) => [...portfolioKeys.details(), id] as const,
+  byContractor: (contractorId: string) =>
+    [...portfolioKeys.all, "contractor", contractorId] as const,
+};
+
 export const chatKeys = {
   all: ["chats"] as const,
   rooms: () => [...chatKeys.all, "rooms"] as const,
