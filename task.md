@@ -4,7 +4,7 @@
 > **Core Concept:** 소비자가 시공 요청을 올리면, 시공사가 서로의 가격을 모른 채 입찰 (Blind Bidding)
 > **Dual Mode:** 하나의 앱에서 소비자 모드 / 시공사 모드 전환
 > **Tech:** Next.js 14 App Router / TypeScript / Supabase / Drizzle ORM / Zustand / TanStack Query v5 / shadcn/ui
-> **Updated:** 2026-02-19
+> **Updated:** 2026-02-20
 
 ---
 
@@ -137,7 +137,7 @@
     - [x] 회색 (Gray): 중간 구간
     - [x] 빨강 (Red): 해당 항목 최고가 구간
   - [ ] **단가 기반 표시:** `m²당 단가` 또는 `개당 단가` 기준 비교 *(Phase 3 이후 — bid_items 입력 구현 필요)*
-  - [ ] 시공사 포트폴리오 미리보기 링크 *(Phase 5 연기)*
+  - [x] 시공사 포트폴리오 미리보기 링크 *(Phase 5 구현 완료)*
   - [x] "이 시공사 선택" 버튼 *(채팅방 자동 생성은 Phase 4 범위)*
 - [x] Server Action: `getBidsForAuction(auctionId)` — 입찰 목록 조회
 - [x] Server Action: `selectBid(bidId)` — 입찰 선택 처리
@@ -173,7 +173,7 @@
     - [x] 4-tier 계층: category → detail → unit → unit_price
     - [x] 자동 합계 계산
   - [x] 시공사 코멘트 입력
-  - [ ] 포트폴리오 자동 첨부 *(Phase 5 연기)*
+  - [ ] 포트폴리오 자동 첨부 *(미구현 — 수동 포트폴리오 관리는 Phase 5 완료)*
   - [x] **Blind 로직:** 다른 시공사의 입찰 정보 조회 불가 (Server-side 검증)
 - [x] Server Action: `submitBid(data)` — bids + bid_items INSERT
 - [x] 중복 입찰 방지 (DB unique constraint)
@@ -224,33 +224,44 @@
 
 ---
 
-## Phase 5: Community & Portfolio (커뮤니티 & 포트폴리오)
+## Phase 5: Community & Portfolio (커뮤니티 & 포트폴리오) ✅
 
 > **목표:** 시공사 포트폴리오, 리뷰 시스템을 구축하고, 기존 커뮤니티를 확장한다.
 
 ### 5-1. 시공사 포트폴리오
 
-- [ ] `/portfolio` 페이지 (시공사 본인):
-  - [ ] 포트폴리오 목록 + 작성/편집
-  - [ ] Before/After 사진 업로드
-  - [ ] 시공 정보: 지역, 평수, 기간, 비용
-- [ ] `/contractor/[id]` 페이지 (소비자 열람용):
-  - [ ] 시공사 프로필 + 포트폴리오 갤러리
-  - [ ] 평점, 리뷰 목록
-  - [ ] 완료 시공 수, 평균 입찰가
+- [x] `/portfolio` 페이지 (시공사 본인):
+  - [x] 포트폴리오 목록 + 작성/편집/삭제
+  - [x] Before/After 사진 업로드 (Supabase Storage `portfolio-images` 버킷)
+  - [x] 시공 정보: 지역, 평수, 기간, 비용
+  - [x] `/portfolio/write` 작성 페이지 (react-hook-form + zod)
+  - [x] `/portfolio/[id]` 상세 페이지 (공개, 소유자 수정 버튼)
+  - [x] `/portfolio/[id]/edit` 수정 페이지 (데이터 프리필, 소유자 검증)
+  - [x] 미들웨어: `/portfolio/write`, `/portfolio/[id]/edit` 보호 + 시공사 전용
+- [x] `/contractor/[id]` 페이지 (소비자 열람용):
+  - [x] 시공사 프로필 카드 (아바타, 상호명, 전문분야 칩, 시공지역 칩, 인증 뱃지)
+  - [x] 통계: 포트폴리오 N건, 리뷰 N건, 평균 별점
+  - [x] 포트폴리오 갤러리 (가로 스크롤)
+  - [x] 최근 리뷰 목록 (별점, 내용, 작성자, 날짜)
+- [x] 입찰 비교 페이지에서 선택된 입찰의 시공사 프로필 링크
 
 ### 5-2. 리뷰 시스템
 
-- [ ] 시공 완료 후 소비자가 리뷰 작성:
-  - [ ] 별점 (1-5), 텍스트 리뷰, 사진 첨부
-  - [ ] 해당 경매/시공사에 연결
-- [ ] 시공사 프로필에 리뷰 평균 반영
+- [x] 소비자가 리뷰 작성:
+  - [x] `/reviews/write` 페이지 (URL 파라미터: contractorId, auctionId)
+  - [x] 별점 (1-5), 텍스트 리뷰 (최소 10자), 사진 첨부
+  - [x] 이미지 업로드 (Supabase Storage `review-images` 버킷)
+  - [x] 해당 경매/시공사에 연결 + 중복 리뷰 방지
+- [x] 시공사 프로필에 리뷰 평균 별점 반영
+- [x] 채팅방 헤더에 소비자용 "리뷰 작성" 버튼 추가
 
 ### 5-3. 커뮤니티 확장
 
-- [ ] 기존 커뮤니티 코드 재활용
-- [ ] 시공사 뱃지 표시: 게시글/댓글에 "시공사" 뱃지
-- [ ] 시공사 전용 게시판 카테고리 추가 (시공 팁, 자재 정보 등)
+- [x] 기존 커뮤니티 코드 재활용 + 확장
+- [x] 시공사 뱃지 표시: 게시글 카드에 "시공사" 뱃지 (user_mode join)
+- [x] `post_type` DB enum 확장: `contractor_tip`, `material_info` 추가
+- [x] 커뮤니티 페이지에 "시공팁", "자재정보" 탭 추가
+- [x] 시공사 전용 게시판 카테고리: 시공사 모드에서만 노출 + 서버 검증
 
 ---
 
