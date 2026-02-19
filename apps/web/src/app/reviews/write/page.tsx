@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useCallback } from "react";
+import { Suspense, useState, useCallback } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -17,7 +17,21 @@ const reviewSchema = z.object({
 
 type ReviewForm = z.infer<typeof reviewSchema>;
 
-export default function ReviewWritePage() {
+export default function ReviewWritePageWrapper() {
+  return (
+    <Suspense
+      fallback={
+        <div className="flex justify-center py-20">
+          <div className="h-6 w-6 animate-spin rounded-full border-2 border-primary border-t-transparent" />
+        </div>
+      }
+    >
+      <ReviewWritePage />
+    </Suspense>
+  );
+}
+
+function ReviewWritePage() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const { toast } = useToast();
