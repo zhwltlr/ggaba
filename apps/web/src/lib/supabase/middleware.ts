@@ -55,6 +55,7 @@ export async function updateSession(request: NextRequest) {
     "/bids",
     "/portfolio/edit",
     "/onboarding",
+    "/chat",
   ];
   const isProtected = protectedPaths.some((path) =>
     request.nextUrl.pathname.startsWith(path)
