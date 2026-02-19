@@ -4,7 +4,7 @@ import { useState, useRef, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { Card, CardContent, Skeleton } from "@ggaba/ui";
 import { cn } from "@ggaba/lib/utils";
-import { ClipboardList } from "lucide-react";
+import { ClipboardList, MessagesSquare } from "lucide-react";
 import { useMyBids } from "@/hooks/use-bid";
 import type { BidStatus, MyBidItem } from "@/app/bids/_types";
 
@@ -101,7 +101,9 @@ export default function MyBidsPage() {
               key={bid.id}
               bid={bid}
               onClick={() =>
-                router.push(`/bids/${bid.auction_id}/submit`)
+                bid.status === "selected"
+                  ? router.push("/chat")
+                  : router.push(`/bids/${bid.auction_id}/submit`)
               }
             />
           ))}
@@ -162,6 +164,13 @@ function MyBidCard({
             {new Date(bid.created_at).toLocaleDateString("ko-KR")}
           </span>
         </div>
+
+        {bid.status === "selected" && (
+          <div className="flex items-center gap-1.5 text-xs font-medium text-safe">
+            <MessagesSquare className="h-3.5 w-3.5" />
+            채팅으로 이동
+          </div>
+        )}
       </CardContent>
     </Card>
   );
