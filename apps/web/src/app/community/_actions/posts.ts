@@ -4,7 +4,7 @@ import { createClient } from "@/lib/supabase/server";
 
 const PAGE_SIZE = 10;
 
-export type PostType = "review" | "share" | "qna";
+export type PostType = "review" | "share" | "qna" | "contractor_tip" | "material_info";
 
 export interface PostItem {
   id: string;

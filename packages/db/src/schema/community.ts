@@ -18,7 +18,13 @@ import { auctions } from "./auctions";
  * - share: 견적 공유
  * - qna: 질문/답변
  */
-export const postTypeEnum = pgEnum("post_type", ["review", "share", "qna"]);
+export const postTypeEnum = pgEnum("post_type", [
+  "review",
+  "share",
+  "qna",
+  "contractor_tip",
+  "material_info",
+]);
 
 /**
  * CommunityPosts 테이블
