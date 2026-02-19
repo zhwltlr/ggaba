@@ -73,6 +73,17 @@ export const portfolioKeys = {
     [...portfolioKeys.all, "contractor", contractorId] as const,
 };
 
+export const contractorKeys = {
+  all: ["contractors"] as const,
+  profile: (id: string) => [...contractorKeys.all, "profile", id] as const,
+};
+
+export const reviewKeys = {
+  all: ["reviews"] as const,
+  byContractor: (contractorId: string) =>
+    [...reviewKeys.all, "contractor", contractorId] as const,
+};
+
 export const chatKeys = {
   all: ["chats"] as const,
   rooms: () => [...chatKeys.all, "rooms"] as const,
