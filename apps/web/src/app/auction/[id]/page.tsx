@@ -106,7 +106,10 @@ export default function AuctionDetailPage() {
         variant: "destructive",
       });
     } else {
-      toast({ title: "입찰을 선택했습니다!" });
+      toast({ title: "입찰을 선택했습니다! 채팅방으로 이동합니다." });
+      if (result.chatRoomId) {
+        router.push(`/chat/${result.chatRoomId}`);
+      }
     }
     setConfirmingBidId(null);
   };

@@ -88,8 +88,12 @@ export default function BidComparePage() {
         variant: "destructive",
       });
     } else {
-      toast({ title: "입찰을 선택했습니다!" });
-      router.push(`/auction/${auctionId}`);
+      toast({ title: "입찰을 선택했습니다! 채팅방으로 이동합니다." });
+      if (result.chatRoomId) {
+        router.push(`/chat/${result.chatRoomId}`);
+      } else {
+        router.push(`/auction/${auctionId}`);
+      }
     }
     setSelecting(false);
     setConfirmingBidId(null);
