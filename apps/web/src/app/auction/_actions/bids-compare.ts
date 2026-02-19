@@ -28,10 +28,10 @@ export async function getBidsForAuction(auctionId: string) {
     return { bids: [], error: "접근 권한이 없습니다." };
   }
 
-  // 입찰 조회 — contractor_id 제외 (블라인드)
+  // 입찰 조회 — contractor_id는 선택된 입찰만 노출
   const { data: bidsData, error: bidsError } = await supabase
     .from("bids")
-    .select("id, auction_id, total_price, message, status, created_at")
+    .select("id, auction_id, contractor_id, total_price, message, status, created_at")
     .eq("auction_id", auctionId)
     .order("total_price", { ascending: true });
 
@@ -39,8 +39,14 @@ export async function getBidsForAuction(auctionId: string) {
     return { bids: [], error: bidsError.message };
   }
 
+  // 선택되지 않은 입찰의 contractor_id는 마스킹
+  const bids: BidItem[] = (bidsData ?? []).map((b) => ({
+    ...b,
+    contractor_id: b.status === "selected" ? b.contractor_id : null,
+  }));
+
   return {
-    bids: (bidsData ?? []) as BidItem[],
+    bids,
     auctionStatus: auction.status,
     error: null,
   };

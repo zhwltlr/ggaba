@@ -23,6 +23,7 @@ export interface AuctionItem {
 export interface BidItem {
   id: string;
   auction_id: string;
+  contractor_id: string | null;
   total_price: number;
   message: string | null;
   status: "submitted" | "selected" | "rejected";

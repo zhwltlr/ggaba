@@ -10,7 +10,7 @@ import {
 } from "@ggaba/ui";
 import { useToast } from "@ggaba/ui";
 import { cn } from "@ggaba/lib/utils";
-import { ArrowLeft, Check } from "lucide-react";
+import { ArrowLeft, Check, User } from "lucide-react";
 import { getBidsForAuction } from "@/app/auction/_actions/bids-compare";
 import { selectBid } from "@/app/auction/_actions/auctions";
 import type { BidItem, AuctionStatus } from "@/app/auction/_types";
@@ -222,8 +222,19 @@ export default function BidComparePage() {
                   제출일: {new Date(bid.created_at).toLocaleDateString("ko-KR")}
                 </p>
 
-                {/* TODO: Phase 3 — 단가 비교 (bid_items 기반, 시공사가 bid_items 입력 후 가능) */}
-                {/* TODO: Phase 5 — 시공사 포트폴리오 링크 */}
+                {/* 시공사 프로필 링크 (선택된 입찰만) */}
+                {bid.status === "selected" && bid.contractor_id && (
+                  <Button
+                    size="sm"
+                    variant="outline"
+                    onClick={() =>
+                      router.push(`/contractor/${bid.contractor_id}`)
+                    }
+                  >
+                    <User className="mr-1 h-3.5 w-3.5" />
+                    시공사 프로필 보기
+                  </Button>
+                )}
 
                 {/* 선택 버튼 */}
                 {canSelect && bid.status === "submitted" && (
