@@ -61,3 +61,10 @@ export const bidKeys = {
   myList: (filters: Record<string, unknown>) =>
     [...bidKeys.myLists(), filters] as const,
 };
+
+export const chatKeys = {
+  all: ["chats"] as const,
+  rooms: () => [...chatKeys.all, "rooms"] as const,
+  room: (id: string) => [...chatKeys.all, "room", id] as const,
+  messages: (roomId: string) => [...chatKeys.all, "messages", roomId] as const,
+};
