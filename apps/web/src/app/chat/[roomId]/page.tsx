@@ -5,7 +5,7 @@ import { useParams, useRouter } from "next/navigation";
 import { useQueryClient } from "@tanstack/react-query";
 import { Button, Input, Skeleton } from "@ggaba/ui";
 import { cn } from "@ggaba/lib/utils";
-import { ArrowLeft, Send, ImagePlus } from "lucide-react";
+import { ArrowLeft, Send, ImagePlus, Star } from "lucide-react";
 import { useAuth } from "@/hooks/use-auth";
 import {
   useChatRoomDetail,
@@ -216,6 +216,21 @@ export default function ChatRoomPage() {
             {room.auction_title}
           </p>
         </div>
+        {/* 소비자일 때 리뷰 작성 버튼 */}
+        {user?.id === room.consumer_id && (
+          <Button
+            size="sm"
+            variant="outline"
+            onClick={() =>
+              router.push(
+                `/reviews/write?contractorId=${room.contractor_id}&auctionId=${room.auction_id}`
+              )
+            }
+          >
+            <Star className="mr-1 h-3.5 w-3.5" />
+            리뷰
+          </Button>
+        )}
       </div>
 
       {/* 에스크로 상태바 */}
