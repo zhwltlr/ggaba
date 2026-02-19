@@ -147,7 +147,7 @@ export async function selectBid(input: { auctionId: string; bidId: string }) {
   } = await supabase.auth.getUser();
 
   if (!user) {
-    return { error: "로그인이 필요합니다." };
+    return { chatRoomId: null, error: "로그인이 필요합니다." };
   }
 
   // 경매 소유자 검증
@@ -158,11 +158,23 @@ export async function selectBid(input: { auctionId: string; bidId: string }) {
     .single();
 
   if (!auction || auction.user_id !== user.id) {
-    return { error: "접근 권한이 없습니다." };
+    return { chatRoomId: null, error: "접근 권한이 없습니다." };
   }
 
   if (auction.status !== "open" && auction.status !== "bidding") {
-    return { error: "입찰을 선택할 수 없는 상태입니다." };
+    return { chatRoomId: null, error: "입찰을 선택할 수 없는 상태입니다." };
+  }
+
+  // 선택된 입찰에서 contractor_id 조회
+  const { data: selectedBid } = await supabase
+    .from("bids")
+    .select("contractor_id")
+    .eq("id", input.bidId)
+    .eq("auction_id", input.auctionId)
+    .single();
+
+  if (!selectedBid) {
+    return { chatRoomId: null, error: "입찰을 찾을 수 없습니다." };
   }
 
   // 선택된 입찰 → 'selected'
@@ -173,7 +185,7 @@ export async function selectBid(input: { auctionId: string; bidId: string }) {
     .eq("auction_id", input.auctionId);
 
   if (selectError) {
-    return { error: selectError.message };
+    return { chatRoomId: null, error: selectError.message };
   }
 
   // 나머지 입찰 → 'rejected'
@@ -185,7 +197,7 @@ export async function selectBid(input: { auctionId: string; bidId: string }) {
     .eq("status", "submitted");
 
   if (rejectError) {
-    return { error: rejectError.message };
+    return { chatRoomId: null, error: rejectError.message };
   }
 
   // 경매 상태 → 'selected'
@@ -195,8 +207,23 @@ export async function selectBid(input: { auctionId: string; bidId: string }) {
     .eq("id", input.auctionId);
 
   if (auctionError) {
-    return { error: auctionError.message };
+    return { chatRoomId: null, error: auctionError.message };
   }
 
-  return { error: null };
+  // 채팅방 자동 생성
+  const { data: chatRoom, error: chatError } = await supabase
+    .from("chat_rooms")
+    .insert({
+      auction_id: input.auctionId,
+      consumer_id: user.id,
+      contractor_id: selectedBid.contractor_id,
+    })
+    .select("id")
+    .single();
+
+  if (chatError) {
+    return { chatRoomId: null, error: chatError.message };
+  }
+
+  return { chatRoomId: chatRoom.id, error: null };
 }
