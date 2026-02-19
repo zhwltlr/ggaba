@@ -20,6 +20,7 @@ export interface PostItem {
   // joined
   nickname: string;
   profile_image_url: string | null;
+  user_mode: "consumer" | "contractor";
   comment_count: number;
   // estimate info (if linked)
   estimate_region: string | null;
@@ -39,7 +40,7 @@ export async function getPosts(opts: {
     .select(
       `
       id, type, title, content, image_urls, view_count, like_count, created_at, user_id, estimate_id,
-      users!inner(nickname, profile_image_url),
+      users!inner(nickname, profile_image_url, user_mode),
       estimates(region, size_pyeong, bad_price_score)
     `
     )
@@ -92,6 +93,7 @@ export async function getPosts(opts: {
       estimate_id: p.estimate_id as string | null,
       nickname: (user?.nickname as string) ?? "사용자",
       profile_image_url: (user?.profile_image_url as string) ?? null,
+      user_mode: ((user?.user_mode as string) ?? "consumer") as "consumer" | "contractor",
       comment_count: countMap[p.id as string] || 0,
       estimate_region: (estimate?.region as string) ?? null,
       estimate_size: estimate?.size_pyeong ? String(estimate.size_pyeong) : null,
@@ -128,7 +130,7 @@ export async function getPost(id: string) {
     .select(
       `
       *,
-      users!inner(id, nickname, profile_image_url),
+      users!inner(id, nickname, profile_image_url, user_mode),
       estimates(id, title, region, size_pyeong, bad_price_score, total_price,
         estimate_items(id, category, detail, unit, unit_price, quantity, total_price, price_rating, market_price_low, market_price_high, sort_order)
       )

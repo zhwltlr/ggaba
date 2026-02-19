@@ -4,7 +4,7 @@ import { useState, useRef, useEffect, useCallback } from "react";
 import { useRouter } from "next/navigation";
 import { Button, Card, CardContent, Skeleton } from "@ggaba/ui";
 import { cn } from "@ggaba/lib/utils";
-import { PenSquare, Eye, Heart, MessageCircle } from "lucide-react";
+import { PenSquare, Eye, Heart, MessageCircle, Hammer } from "lucide-react";
 import { useCommunityPosts } from "@/hooks/use-community";
 import type { PostType, PostItem } from "@/app/community/_actions/posts";
 
@@ -13,12 +13,16 @@ const TABS: { label: string; value: PostType | undefined }[] = [
   { label: "견적공유", value: "share" },
   { label: "시공후기", value: "review" },
   { label: "질문", value: "qna" },
+  { label: "시공팁", value: "contractor_tip" },
+  { label: "자재정보", value: "material_info" },
 ];
 
 const TYPE_BADGE: Record<PostType, { label: string; className: string }> = {
   share: { label: "견적공유", className: "bg-primary/10 text-primary" },
   review: { label: "시공후기", className: "bg-safe/10 text-safe" },
   qna: { label: "질문", className: "bg-warning/10 text-warning" },
+  contractor_tip: { label: "시공팁", className: "bg-violet-100 text-violet-700" },
+  material_info: { label: "자재정보", className: "bg-amber-100 text-amber-700" },
 };
 
 export default function CommunityPage() {
@@ -158,6 +162,12 @@ function CommunityCard({
             {post.nickname.charAt(0)}
           </div>
           <span className="text-xs font-medium">{post.nickname}</span>
+          {post.user_mode === "contractor" && (
+            <span className="flex items-center gap-0.5 rounded-full bg-violet-100 px-1.5 py-0.5 text-[9px] font-medium text-violet-700">
+              <Hammer className="h-2.5 w-2.5" />
+              시공사
+            </span>
+          )}
           <span className="text-xs text-muted-foreground">{timeAgo}</span>
           <span
             className={cn(
