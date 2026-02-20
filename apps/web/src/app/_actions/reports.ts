@@ -52,7 +52,7 @@ export async function submitReport(input: {
     return { success: false, error: "신고 대상을 찾을 수 없습니다." };
   }
 
-  const targetUserId = (target as Record<string, unknown>)[userField] as string;
+  const targetUserId = (target as unknown as Record<string, unknown>)[userField] as string;
 
   // 자기 자신 신고 방지
   if (targetUserId === user.id) {

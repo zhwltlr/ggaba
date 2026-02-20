@@ -204,10 +204,10 @@ export default function AdminReportDetailPage() {
               )}
             </span>
           </div>
-          {report.description && (
+          {(report.description as string | null) && (
             <div className="mt-2 rounded-md bg-accent/30 p-2.5">
               <p className="text-[10px] text-muted-foreground">상세 설명</p>
-              <p className="mt-1">{report.description as string}</p>
+              <p className="mt-1">{String(report.description)}</p>
             </div>
           )}
         </CardContent>
@@ -244,9 +244,9 @@ export default function AdminReportDetailPage() {
                   )?.toLocaleString()}
                   원
                 </p>
-                {targetContent.message && (
+                {(targetContent.message as string | null) && (
                   <p className="text-muted-foreground">
-                    {targetContent.message as string}
+                    {String(targetContent.message)}
                   </p>
                 )}
               </div>
@@ -357,13 +357,13 @@ export default function AdminReportDetailPage() {
       )}
 
       {/* 처리 완료 정보 */}
-      {isProcessed && report.admin_note && (
+      {isProcessed && (report.admin_note as string | null) && (
         <Card>
           <CardHeader className="pb-2">
             <CardTitle className="text-sm">관리자 메모</CardTitle>
           </CardHeader>
           <CardContent className="text-xs text-muted-foreground">
-            {report.admin_note as string}
+            {String(report.admin_note)}
           </CardContent>
         </Card>
       )}
