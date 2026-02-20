@@ -20,7 +20,7 @@ import {
 import { useUserStore } from "@/stores/use-user-store";
 import { useUserProfile } from "@/hooks/use-user-profile";
 
-const HIDE_NAV_PATHS = ["/login", "/auth", "/onboarding"];
+const HIDE_NAV_PATHS = ["/login", "/auth", "/onboarding", "/admin"];
 
 const AI_DIAGNOSIS_ENABLED =
   process.env.NEXT_PUBLIC_ENABLE_AI_DIAGNOSIS === "true";

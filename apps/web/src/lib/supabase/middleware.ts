@@ -57,6 +57,7 @@ export async function updateSession(request: NextRequest) {
     "/portfolio/edit",
     "/onboarding",
     "/chat",
+    "/admin",
   ];
   const protectedPatterns = [/^\/portfolio\/[^/]+\/edit$/];
   const isProtected =
@@ -100,6 +101,21 @@ export async function updateSession(request: NextRequest) {
       return NextResponse.redirect(url);
     }
     if (isConsumerOnly && userMode !== "consumer") {
+      const url = request.nextUrl.clone();
+      url.pathname = "/";
+      return NextResponse.redirect(url);
+    }
+  }
+
+  // 관리자 전용 라우트: admin role 필수
+  if (user && pathname.startsWith("/admin")) {
+    const { data: adminProfile } = await supabase
+      .from("users")
+      .select("role")
+      .eq("id", user.id)
+      .single();
+
+    if (adminProfile?.role !== "admin") {
       const url = request.nextUrl.clone();
       url.pathname = "/";
       return NextResponse.redirect(url);
