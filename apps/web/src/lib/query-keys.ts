@@ -90,3 +90,19 @@ export const chatKeys = {
   room: (id: string) => [...chatKeys.all, "room", id] as const,
   messages: (roomId: string) => [...chatKeys.all, "messages", roomId] as const,
 };
+
+export const reportKeys = {
+  all: ["reports"] as const,
+  lists: () => [...reportKeys.all, "list"] as const,
+  list: (filters: Record<string, unknown>) =>
+    [...reportKeys.lists(), filters] as const,
+  details: () => [...reportKeys.all, "detail"] as const,
+  detail: (id: string) => [...reportKeys.details(), id] as const,
+};
+
+export const penaltyKeys = {
+  all: ["penalties"] as const,
+  lists: () => [...penaltyKeys.all, "list"] as const,
+  list: (filters: Record<string, unknown>) =>
+    [...penaltyKeys.lists(), filters] as const,
+};
