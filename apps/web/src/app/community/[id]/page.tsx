@@ -24,6 +24,7 @@ import { formatCurrency } from "@ggaba/lib/utils/format";
 import { ArrowLeft, Send, Reply, Eye, Heart, MessageCircle } from "lucide-react";
 import { useCommunityPost, useAddComment } from "@/hooks/use-community";
 import { useAuth } from "@/hooks/use-auth";
+import { ReportDialog } from "@/app/_components/report-dialog";
 
 const RATING_STYLES: Record<string, string> = {
   적정: "text-safe",
@@ -167,6 +168,9 @@ export default function CommunityDetailPage() {
         <span className="flex items-center gap-1">
           <MessageCircle className="h-3.5 w-3.5" /> {comments.length}
         </span>
+        {user && user.id !== (postUser?.id as string) && (
+          <ReportDialog targetType="post" targetId={id} />
+        )}
       </div>
 
       {/* 연결된 견적 */}
@@ -284,6 +288,8 @@ export default function CommunityDetailPage() {
                   nickname={commentUser?.nickname as string}
                   content={comment.content as string}
                   createdAt={comment.created_at as string}
+                  commentId={comment.id as string}
+                  showReport={!!user && user.id !== (comment.user_id as string)}
                   onReply={() =>
                     setReplyTo({
                       id: comment.id as string,
@@ -300,6 +306,8 @@ export default function CommunityDetailPage() {
                         nickname={replyUser?.nickname as string}
                         content={reply.content as string}
                         createdAt={reply.created_at as string}
+                        commentId={reply.id as string}
+                        showReport={!!user && user.id !== (reply.user_id as string)}
                       />
                     </div>
                   );
@@ -356,11 +364,15 @@ function CommentItem({
   content,
   createdAt,
   onReply,
+  commentId,
+  showReport,
 }: {
   nickname: string;
   content: string;
   createdAt: string;
   onReply?: () => void;
+  commentId?: string;
+  showReport?: boolean;
 }) {
   const timeAgo = getTimeAgo(createdAt);
 
@@ -375,15 +387,20 @@ function CommentItem({
           <span className="text-[10px] text-muted-foreground">{timeAgo}</span>
         </div>
         <p className="mt-0.5 text-xs text-foreground/90">{content}</p>
-        {onReply && (
-          <button
-            type="button"
-            onClick={onReply}
-            className="mt-1 text-[10px] text-muted-foreground hover:text-foreground"
-          >
-            답글
-          </button>
-        )}
+        <div className="mt-1 flex items-center gap-3">
+          {onReply && (
+            <button
+              type="button"
+              onClick={onReply}
+              className="text-[10px] text-muted-foreground hover:text-foreground"
+            >
+              답글
+            </button>
+          )}
+          {showReport && commentId && (
+            <ReportDialog targetType="comment" targetId={commentId} />
+          )}
+        </div>
       </div>
     </div>
   );

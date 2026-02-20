@@ -14,6 +14,8 @@ import { ArrowLeft, Check, User } from "lucide-react";
 import { getBidsForAuction } from "@/app/auction/_actions/bids-compare";
 import { selectBid } from "@/app/auction/_actions/auctions";
 import type { BidItem, AuctionStatus } from "@/app/auction/_types";
+import { useAuth } from "@/hooks/use-auth";
+import { ReportDialog } from "@/app/_components/report-dialog";
 
 const ALPHABET = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
 
@@ -50,6 +52,7 @@ export default function BidComparePage() {
   const [loading, setLoading] = useState(true);
   const [confirmingBidId, setConfirmingBidId] = useState<string | null>(null);
   const [selecting, setSelecting] = useState(false);
+  const { user } = useAuth();
 
   useEffect(() => {
     getBidsForAuction(auctionId).then((res) => {
@@ -217,10 +220,15 @@ export default function BidComparePage() {
                   </p>
                 )}
 
-                {/* 제출일 */}
-                <p className="text-[10px] text-muted-foreground">
-                  제출일: {new Date(bid.created_at).toLocaleDateString("ko-KR")}
-                </p>
+                {/* 제출일 + 신고 */}
+                <div className="flex items-center justify-between">
+                  <p className="text-[10px] text-muted-foreground">
+                    제출일: {new Date(bid.created_at).toLocaleDateString("ko-KR")}
+                  </p>
+                  {user && user.id !== bid.contractor_id && (
+                    <ReportDialog targetType="bid" targetId={bid.id} />
+                  )}
+                </div>
 
                 {/* 시공사 프로필 링크 (선택된 입찰만) */}
                 {bid.status === "selected" && bid.contractor_id && (
