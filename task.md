@@ -4,7 +4,7 @@
 > **Core Concept:** 소비자가 시공 요청을 올리면, 시공사가 서로의 가격을 모른 채 입찰 (Blind Bidding)
 > **Dual Mode:** 하나의 앱에서 소비자 모드 / 시공사 모드 전환
 > **Tech:** Next.js 14 App Router / TypeScript / Supabase / Drizzle ORM / Zustand / TanStack Query v5 / shadcn/ui
-> **Updated:** 2026-02-20
+> **Updated:** 2026-02-21
 
 ---
 
@@ -265,22 +265,45 @@
 
 ---
 
-## Phase 6: Admin & Safety (관리 & 안전장치)
+## Phase 6: Admin & Safety (관리 & 안전장치) ✅
 
 > **목표:** 플랫폼 신뢰도를 위한 페널티 및 신고 시스템을 구축한다.
 
-### 6-1. 페널티 시스템
+### 6-1. DB 스키마 & 마이그레이션
 
-- [ ] 최종 시공 금액 > 입찰 금액 × 1.15 시 자동 플래그:
-  - [ ] 시공사에게 경고 알림
-  - [ ] 반복 시 계정 제재 로직
-- [ ] 페널티 이력 관리 테이블 (향후)
+- [x] `reports` 테이블 생성 (reporter_id, target_type, target_id, target_user_id, reason, status, admin_note, resolved_at, resolved_by)
+- [x] `penalties` 테이블 생성 (user_id, type, reason, report_id, is_active, expires_at, created_by)
+- [x] Enum 4개: `report_target_type`, `report_reason`, `report_status`, `penalty_type`
+- [x] Drizzle relations 정의 (reportsRelations, penaltiesRelations, usersRelations 확장)
+- [x] SQL 마이그레이션 생성 및 Supabase 반영 (인덱스 6개 포함)
 
 ### 6-2. 신고 시스템
 
-- [ ] 허위 입찰 신고
-- [ ] 부적절 게시글/댓글 신고
-- [ ] 신고 접수 UI + Server Action
+- [x] `submitReport()` Server Action — 인증 체크, 대상 존재 확인, 자기 신고 방지, 중복 신고 방지
+- [x] `<ReportDialog>` 재사용 컴포넌트 — 사유 라디오 선택 + 상세 설명 + 오버레이 모달
+- [x] 커뮤니티 게시글/댓글에 신고 버튼 통합 (로그인 + 본인 아닌 경우만 표시)
+- [x] 입찰 비교 페이지 입찰 카드에 신고 버튼 통합
+- [x] `reportKeys`, `penaltyKeys` Query Key 팩토리 + `useSubmitReport` 훅
+
+### 6-3. 관리자 시스템
+
+- [x] 관리자 Server Actions:
+  - [x] `getReports()` 커서 페이지네이션, `getReportDetail()`, `resolveReport()`, `updateReportStatus()`, `getPendingReportCount()`
+  - [x] `getPenalties()`, `issuePenalty()`, `revokePenalty()`
+  - [x] 모든 함수에 admin role 체크 포함
+- [x] 미들웨어 `/admin` 라우트 보호 (로그인 + admin role 필수, 비관리자 리다이렉트)
+- [x] BottomNav `/admin` 경로 숨김 처리
+- [x] `/admin` 대시보드 — 신고 관리(대기 건수 뱃지) / 페널티 관리 카드 링크
+- [x] `/admin/reports` 신고 목록 — 탭 필터(pending/reviewing/resolved/dismissed) + 무한스크롤
+- [x] `/admin/reports/[id]` 신고 상세 — 대상 콘텐츠 미리보기 + 처리/기각/페널티 부여
+- [x] `/admin/penalties` 페널티 목록 — 전체/활성/만료 필터, 부여 폼(URL 프리필), 해제 기능
+- [x] `useAdminReports`, `useAdminReportDetail`, `useResolveReport`, `useAdminPenalties`, `useIssuePenalty`, `useRevokePenalty` 훅
+
+### 6-4. 자동 플래그 (보류)
+
+- [ ] 최종 시공 금액 > 입찰 금액 × 1.15 시 자동 플래그 *(에스크로 실제 연동 시점까지 보류)*
+  - [ ] 시공사에게 경고 알림
+  - [ ] 반복 시 계정 제재 로직
 
 ---
 
