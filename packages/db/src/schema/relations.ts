@@ -7,6 +7,7 @@ import { auctions } from "./auctions";
 import { bids, bidItems } from "./bids";
 import { portfolios } from "./portfolios";
 import { chatRooms, messages } from "./chat";
+import { reports, penalties } from "./admin";
 
 // ── Users 관계 ──
 export const usersRelations = relations(users, ({ one, many }) => ({
@@ -22,6 +23,9 @@ export const usersRelations = relations(users, ({ one, many }) => ({
   auctions: many(auctions),
   bids: many(bids),
   portfolios: many(portfolios),
+  submittedReports: many(reports, { relationName: "reporter" }),
+  receivedReports: many(reports, { relationName: "targetUser" }),
+  penalties: many(penalties, { relationName: "penalizedUser" }),
 }));
 
 // ── BusinessProfiles 관계 ──
@@ -169,5 +173,42 @@ export const messagesRelations = relations(messages, ({ one }) => ({
   sender: one(users, {
     fields: [messages.senderId],
     references: [users.id],
+  }),
+}));
+
+// ── Reports 관계 ──
+export const reportsRelations = relations(reports, ({ one }) => ({
+  reporter: one(users, {
+    fields: [reports.reporterId],
+    references: [users.id],
+    relationName: "reporter",
+  }),
+  targetUser: one(users, {
+    fields: [reports.targetUserId],
+    references: [users.id],
+    relationName: "targetUser",
+  }),
+  resolver: one(users, {
+    fields: [reports.resolvedBy],
+    references: [users.id],
+    relationName: "resolver",
+  }),
+}));
+
+// ── Penalties 관계 ──
+export const penaltiesRelations = relations(penalties, ({ one }) => ({
+  user: one(users, {
+    fields: [penalties.userId],
+    references: [users.id],
+    relationName: "penalizedUser",
+  }),
+  report: one(reports, {
+    fields: [penalties.reportId],
+    references: [reports.id],
+  }),
+  creator: one(users, {
+    fields: [penalties.createdBy],
+    references: [users.id],
+    relationName: "penaltyCreator",
   }),
 }));

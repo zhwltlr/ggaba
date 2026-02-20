@@ -15,6 +15,16 @@ export { bids, bidItems, bidStatusEnum } from "./bids";
 export { portfolios } from "./portfolios";
 export { chatRooms, messages, chatRoomStatusEnum, messageTypeEnum } from "./chat";
 
+// Tables — Phase 6 (Admin & Safety)
+export {
+  reports,
+  penalties,
+  reportTargetTypeEnum,
+  reportReasonEnum,
+  reportStatusEnum,
+  penaltyTypeEnum,
+} from "./admin";
+
 // Relations
 export {
   usersRelations,
@@ -30,4 +40,6 @@ export {
   portfoliosRelations,
   chatRoomsRelations,
   messagesRelations,
+  reportsRelations,
+  penaltiesRelations,
 } from "./relations";
