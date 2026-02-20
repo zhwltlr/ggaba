@@ -30,8 +30,8 @@ export async function registerContractor(input: RegisterContractorInput) {
       business_number: input.businessNumber,
       representative_name: input.representativeName,
       phone: input.phone,
-      specialty: input.specialty.join(","),
-      service_regions: input.serviceRegions.join(","),
+      specialty: JSON.stringify(input.specialty),
+      service_regions: JSON.stringify(input.serviceRegions),
     })
     .select("id")
     .single();
