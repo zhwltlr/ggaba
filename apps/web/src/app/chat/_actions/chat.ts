@@ -29,54 +29,82 @@ export async function getChatRooms() {
     return { rooms: [], error: error.message };
   }
 
-  // 각 채팅방의 상대방 닉네임, 마지막 메시지, 안 읽은 수 조회
-  const chatRooms: ChatRoom[] = await Promise.all(
-    (rooms ?? []).map(async (room) => {
-      const otherUserId =
-        room.consumer_id === user.id ? room.contractor_id : room.consumer_id;
+  const roomList = rooms ?? [];
+  if (roomList.length === 0) {
+    return { rooms: [], error: null };
+  }
 
-      // 상대방 닉네임
-      const { data: otherUser } = await supabase
-        .from("users")
-        .select("nickname")
-        .eq("id", otherUserId)
-        .single();
-
-      // 마지막 메시지
-      const { data: lastMsg } = await supabase
-        .from("messages")
-        .select("content, created_at")
-        .eq("chat_room_id", room.id)
-        .order("created_at", { ascending: false })
-        .limit(1)
-        .maybeSingle();
-
-      // 안 읽은 메시지 수
-      const { count } = await supabase
-        .from("messages")
-        .select("id", { count: "exact", head: true })
-        .eq("chat_room_id", room.id)
-        .neq("sender_id", user.id)
-        .is("read_at", null);
-
-      const auction = room.auctions as unknown as { title: string } | null;
-
-      return {
-        id: room.id,
-        auction_id: room.auction_id,
-        consumer_id: room.consumer_id,
-        contractor_id: room.contractor_id,
-        status: room.status as ChatRoom["status"],
-        created_at: room.created_at,
-        updated_at: room.updated_at,
-        auction_title: auction?.title ?? "",
-        other_user_nickname: otherUser?.nickname ?? "알 수 없음",
-        last_message: lastMsg?.content ?? null,
-        last_message_at: lastMsg?.created_at ?? null,
-        unread_count: count ?? 0,
-      };
-    })
+  const roomIds = roomList.map((r) => r.id);
+  const otherUserIds = roomList.map((r) =>
+    r.consumer_id === user.id ? r.contractor_id : r.consumer_id
   );
+  const uniqueOtherUserIds = [...new Set(otherUserIds)];
+
+  // 배치 쿼리 3개를 병렬 실행 (N+1 → 4 쿼리)
+  const [nicknameResult, messagesResult, unreadResult] = await Promise.all([
+    // 1) 모든 상대방 닉네임 일괄 조회
+    supabase
+      .from("users")
+      .select("id, nickname")
+      .in("id", uniqueOtherUserIds),
+    // 2) 모든 방의 메시지 일괄 조회 (최신순 → JS에서 방별 첫 번째 추출)
+    supabase
+      .from("messages")
+      .select("chat_room_id, content, created_at")
+      .in("chat_room_id", roomIds)
+      .order("created_at", { ascending: false }),
+    // 3) 모든 안 읽은 메시지 일괄 조회
+    supabase
+      .from("messages")
+      .select("chat_room_id")
+      .in("chat_room_id", roomIds)
+      .neq("sender_id", user.id)
+      .is("read_at", null),
+  ]);
+
+  // 닉네임 맵
+  const nicknameMap = new Map(
+    (nicknameResult.data ?? []).map((u) => [u.id, u.nickname])
+  );
+
+  // 방별 마지막 메시지 맵 (이미 최신순 정렬 → 첫 번째 등장이 최신)
+  const lastMessageMap = new Map<string, { content: string; created_at: string }>();
+  for (const msg of messagesResult.data ?? []) {
+    if (!lastMessageMap.has(msg.chat_room_id)) {
+      lastMessageMap.set(msg.chat_room_id, {
+        content: msg.content,
+        created_at: msg.created_at,
+      });
+    }
+  }
+
+  // 방별 안 읽은 수 맵
+  const unreadMap = new Map<string, number>();
+  for (const msg of unreadResult.data ?? []) {
+    unreadMap.set(msg.chat_room_id, (unreadMap.get(msg.chat_room_id) ?? 0) + 1);
+  }
+
+  const chatRooms: ChatRoom[] = roomList.map((room) => {
+    const otherUserId =
+      room.consumer_id === user.id ? room.contractor_id : room.consumer_id;
+    const auction = room.auctions as unknown as { title: string } | null;
+    const lastMsg = lastMessageMap.get(room.id);
+
+    return {
+      id: room.id,
+      auction_id: room.auction_id,
+      consumer_id: room.consumer_id,
+      contractor_id: room.contractor_id,
+      status: room.status as ChatRoom["status"],
+      created_at: room.created_at,
+      updated_at: room.updated_at,
+      auction_title: auction?.title ?? "",
+      other_user_nickname: nicknameMap.get(otherUserId) ?? "알 수 없음",
+      last_message: lastMsg?.content ?? null,
+      last_message_at: lastMsg?.created_at ?? null,
+      unread_count: unreadMap.get(room.id) ?? 0,
+    };
+  });
 
   return { rooms: chatRooms, error: null };
 }
