@@ -30,30 +30,36 @@ export async function getContractorProfile(
 ): Promise<{ profile: ContractorProfile | null; error: string | null }> {
   const supabase = await createClient();
 
-  // 사용자 기본 정보
-  const { data: user, error: userError } = await supabase
-    .from("users")
-    .select("id, nickname, profile_image_url, created_at")
-    .eq("id", contractorId)
-    .single();
+  // 4개 쿼리 모두 contractorId만 필요하므로 병렬 실행
+  const [userResult, businessResult, reviewsResult, portfolioResult] =
+    await Promise.all([
+      supabase
+        .from("users")
+        .select("id, nickname, profile_image_url, created_at")
+        .eq("id", contractorId)
+        .single(),
+      supabase
+        .from("business_profiles")
+        .select("company_name, specialty, service_regions, verified")
+        .eq("user_id", contractorId)
+        .single(),
+      supabase
+        .from("reviews")
+        .select("rating")
+        .eq("partner_id", contractorId),
+      supabase
+        .from("portfolios")
+        .select("id", { count: "exact", head: true })
+        .eq("contractor_id", contractorId),
+    ]);
 
-  if (userError || !user) {
+  const user = userResult.data;
+  if (userResult.error || !user) {
     return { profile: null, error: "시공사를 찾을 수 없습니다." };
   }
 
-  // 사업자 프로필
-  const { data: business } = await supabase
-    .from("business_profiles")
-    .select("company_name, specialty, service_regions, verified")
-    .eq("user_id", contractorId)
-    .single();
-
-  // 리뷰 통계
-  const { data: reviews } = await supabase
-    .from("reviews")
-    .select("rating")
-    .eq("partner_id", contractorId);
-
+  const business = businessResult.data;
+  const reviews = reviewsResult.data;
   const reviewCount = reviews?.length ?? 0;
   const avgRating =
     reviewCount > 0
@@ -62,12 +68,6 @@ export async function getContractorProfile(
             10
         ) / 10
       : 0;
-
-  // 포트폴리오 수
-  const { count: portfolioCount } = await supabase
-    .from("portfolios")
-    .select("id", { count: "exact", head: true })
-    .eq("contractor_id", contractorId);
 
   return {
     profile: {
@@ -81,7 +81,7 @@ export async function getContractorProfile(
       verified: business?.verified ?? false,
       avg_rating: avgRating,
       review_count: reviewCount,
-      portfolio_count: portfolioCount ?? 0,
+      portfolio_count: portfolioResult.count ?? 0,
     },
     error: null,
   };
