@@ -89,15 +89,49 @@ export async function updateSession(request: NextRequest) {
   const needsProfileCheck = isContractorOnly || isConsumerOnly || isAdminRoute;
 
   if (user && needsProfileCheck) {
-    // 단일 쿼리로 user_mode + role 모두 조회
-    const { data: profile } = await supabase
-      .from("users")
-      .select("user_mode, role")
-      .eq("id", user.id)
-      .single();
+    const PROFILE_COOKIE = "x-ggaba-profile";
+    const PROFILE_TTL = 5 * 60 * 1000; // 5분
 
-    const userMode = profile?.user_mode;
-    const userRole = profile?.role;
+    let userMode: string | undefined;
+    let userRole: string | undefined;
+
+    // 쿠키에서 캐시된 프로필 확인
+    const cached = request.cookies.get(PROFILE_COOKIE)?.value;
+    if (cached) {
+      try {
+        const parsed = JSON.parse(cached);
+        if (parsed.ts && Date.now() - parsed.ts < PROFILE_TTL) {
+          userMode = parsed.user_mode;
+          userRole = parsed.role;
+        }
+      } catch {
+        // 파싱 실패 시 DB에서 재조회
+      }
+    }
+
+    // 캐시 miss 또는 만료 시 DB 조회 후 쿠키 갱신
+    if (!userMode && !userRole) {
+      const { data: profile } = await supabase
+        .from("users")
+        .select("user_mode, role")
+        .eq("id", user.id)
+        .single();
+
+      userMode = profile?.user_mode;
+      userRole = profile?.role;
+
+      // 쿠키에 캐싱
+      supabaseResponse.cookies.set(PROFILE_COOKIE, JSON.stringify({
+        user_mode: userMode,
+        role: userRole,
+        ts: Date.now(),
+      }), {
+        path: "/",
+        httpOnly: true,
+        sameSite: "lax",
+        maxAge: 300, // 5분
+      });
+    }
 
     if (isContractorOnly && userMode !== "contractor") {
       const url = request.nextUrl.clone();

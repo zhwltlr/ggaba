@@ -1,5 +1,6 @@
 "use server";
 
+import { cookies } from "next/headers";
 import { createClient } from "@/lib/supabase/server";
 
 export async function getProfile() {
@@ -73,6 +74,10 @@ export async function updateUserMode(mode: "consumer" | "contractor") {
   if (error) {
     return { error: error.message };
   }
+
+  // 미들웨어 프로필 캐시 쿠키 삭제 (즉시 반영)
+  const cookieStore = await cookies();
+  cookieStore.delete("x-ggaba-profile");
 
   return { error: null };
 }
