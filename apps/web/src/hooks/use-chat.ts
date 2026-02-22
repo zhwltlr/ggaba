@@ -19,6 +19,7 @@ export function useChatRooms() {
   return useQuery({
     queryKey: chatKeys.rooms(),
     queryFn: getChatRooms,
+    staleTime: 30_000,
   });
 }
 
@@ -26,6 +27,7 @@ export function useChatRoomDetail(roomId: string) {
   return useQuery({
     queryKey: chatKeys.room(roomId),
     queryFn: () => getChatRoomDetail(roomId),
+    staleTime: 30_000,
     enabled: !!roomId,
   });
 }
@@ -36,6 +38,7 @@ export function useMessages(roomId: string) {
     queryFn: ({ pageParam }) => getMessages({ roomId, cursor: pageParam }),
     initialPageParam: undefined as string | undefined,
     getNextPageParam: (lastPage) => lastPage.nextCursor ?? undefined,
+    staleTime: 0,
     enabled: !!roomId,
   });
 }
