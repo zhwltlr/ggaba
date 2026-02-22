@@ -19,32 +19,46 @@ const AI_DIAGNOSIS_ENABLED =
 export default async function Home() {
   const supabase = await createClient();
 
+  // 인기 커뮤니티 게시글 쿼리 (공통)
+  const popularPostsQuery = supabase
+    .from("community_posts")
+    .select("id, title, type, view_count, like_count, created_at, users!inner(nickname)")
+    .order("view_count", { ascending: false })
+    .limit(3);
+
   // AI 진단 관련 데이터 (Feature Flag ON일 때만 fetch)
   let recentEstimates: Record<string, unknown>[] | null = null;
   let totalDiagnosis: number | null = null;
   let avgScore = 0;
+  let auctionSummary: { activeAuctions: number; totalBids: number } | null = null;
+  let popularPosts: Record<string, unknown>[] | null = null;
 
   if (AI_DIAGNOSIS_ENABLED) {
-    const { data } = await supabase
-      .from("estimates")
-      .select("id, title, region, size_pyeong, bad_price_score, created_at")
-      .eq("status", "diagnosed")
-      .order("created_at", { ascending: false })
-      .limit(10);
-    recentEstimates = data;
+    // AI 모드: 3개 estimates 쿼리 + popularPosts 병렬 실행
+    const [recentResult, countResult, avgResult, postsResult] = await Promise.all([
+      supabase
+        .from("estimates")
+        .select("id, title, region, size_pyeong, bad_price_score, created_at")
+        .eq("status", "diagnosed")
+        .order("created_at", { ascending: false })
+        .limit(10),
+      supabase
+        .from("estimates")
+        .select("*", { count: "exact", head: true })
+        .eq("status", "diagnosed"),
+      supabase
+        .from("estimates")
+        .select("bad_price_score")
+        .eq("status", "diagnosed")
+        .not("bad_price_score", "is", null),
+      popularPostsQuery,
+    ]);
 
-    const { count } = await supabase
-      .from("estimates")
-      .select("*", { count: "exact", head: true })
-      .eq("status", "diagnosed");
-    totalDiagnosis = count;
+    recentEstimates = recentResult.data;
+    totalDiagnosis = countResult.count;
+    popularPosts = postsResult.data;
 
-    const { data: avgScoreData } = await supabase
-      .from("estimates")
-      .select("bad_price_score")
-      .eq("status", "diagnosed")
-      .not("bad_price_score", "is", null);
-
+    const avgScoreData = avgResult.data;
     avgScore =
       avgScoreData && avgScoreData.length > 0
         ? Math.round(
@@ -55,19 +69,15 @@ export default async function Home() {
             ) / avgScoreData.length
           )
         : 0;
+  } else {
+    // 일반 모드: auctionSummary + popularPosts 병렬 실행
+    const [auctionResult, postsResult] = await Promise.all([
+      getAuctionSummary(),
+      popularPostsQuery,
+    ]);
+    auctionSummary = auctionResult;
+    popularPosts = postsResult.data;
   }
-
-  // 경매 현황 (AI 진단 OFF일 때)
-  const auctionSummary = !AI_DIAGNOSIS_ENABLED
-    ? await getAuctionSummary()
-    : null;
-
-  // 인기 커뮤니티 게시글 3건 (항상 표시)
-  const { data: popularPosts } = await supabase
-    .from("community_posts")
-    .select("id, title, type, view_count, like_count, created_at, users!inner(nickname)")
-    .order("view_count", { ascending: false })
-    .limit(3);
 
   return (
     <div className="flex flex-col gap-6 p-4 pt-8">
