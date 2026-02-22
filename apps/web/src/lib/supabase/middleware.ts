@@ -73,7 +73,7 @@ export async function updateSession(request: NextRequest) {
     return NextResponse.redirect(url);
   }
 
-  // 모드별 접근 제어: 로그인된 사용자의 user_mode 기반
+  // 모드별 접근 제어: 로그인된 사용자의 user_mode / role 기반
   const contractorOnlyPaths = ["/bids", "/portfolio/write", "/portfolio/edit"];
   const contractorOnlyPatterns = [/^\/portfolio\/[^/]+\/edit$/];
   const consumerOnlyPaths = ["/auction/new"];
@@ -85,15 +85,19 @@ export async function updateSession(request: NextRequest) {
   const isConsumerOnly = consumerOnlyPaths.some((p) =>
     pathname.startsWith(p)
   );
+  const isAdminRoute = pathname.startsWith("/admin");
+  const needsProfileCheck = isContractorOnly || isConsumerOnly || isAdminRoute;
 
-  if (user && (isContractorOnly || isConsumerOnly)) {
+  if (user && needsProfileCheck) {
+    // 단일 쿼리로 user_mode + role 모두 조회
     const { data: profile } = await supabase
       .from("users")
-      .select("user_mode")
+      .select("user_mode, role")
       .eq("id", user.id)
       .single();
 
     const userMode = profile?.user_mode;
+    const userRole = profile?.role;
 
     if (isContractorOnly && userMode !== "contractor") {
       const url = request.nextUrl.clone();
@@ -105,17 +109,7 @@ export async function updateSession(request: NextRequest) {
       url.pathname = "/";
       return NextResponse.redirect(url);
     }
-  }
-
-  // 관리자 전용 라우트: admin role 필수
-  if (user && pathname.startsWith("/admin")) {
-    const { data: adminProfile } = await supabase
-      .from("users")
-      .select("role")
-      .eq("id", user.id)
-      .single();
-
-    if (adminProfile?.role !== "admin") {
+    if (isAdminRoute && userRole !== "admin") {
       const url = request.nextUrl.clone();
       url.pathname = "/";
       return NextResponse.redirect(url);
