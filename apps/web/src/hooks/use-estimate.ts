@@ -12,7 +12,7 @@ export function useEstimateDetail(id: string) {
     queryFn: async () => {
       const { data: estimate, error: estimateError } = await supabase
         .from("estimates")
-        .select("*")
+        .select("id, title, bad_price_score, total_price, region, size_pyeong, building_type, diagnosis_result, status, created_at")
         .eq("id", id)
         .single();
 
@@ -20,7 +20,7 @@ export function useEstimateDetail(id: string) {
 
       const { data: items, error: itemsError } = await supabase
         .from("estimate_items")
-        .select("*")
+        .select("id, estimate_id, category, detail, unit, unit_price, quantity, total_price, sort_order, price_rating, market_price_low, market_price_high")
         .eq("estimate_id", id)
         .order("sort_order", { ascending: true });
 
